@@ -1,1 +1,6 @@
-// Intentionally empty: notes.zaynjarvis.com starts with no published posts.
+import { registerPost } from '../blog-components.jsx';
+import aiCapabilityNotes from './ai-capability-notes/index.jsx';
+
+[
+  aiCapabilityNotes,
+].forEach(registerPost);
