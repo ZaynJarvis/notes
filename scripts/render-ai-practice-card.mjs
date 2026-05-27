@@ -53,10 +53,10 @@ function overlaySvg(item) {
   <svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(0,0,0,.42)"/>
-        <stop offset=".32" stop-color="rgba(0,0,0,.06)"/>
+        <stop offset="0" stop-color="rgba(0,0,0,.52)"/>
+        <stop offset=".30" stop-color="rgba(0,0,0,.08)"/>
         <stop offset=".66" stop-color="rgba(0,0,0,.03)"/>
-        <stop offset="1" stop-color="rgba(0,0,0,.50)"/>
+        <stop offset="1" stop-color="rgba(0,0,0,.72)"/>
       </linearGradient>
       <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity=".20"/>
@@ -69,6 +69,8 @@ function overlaySvg(item) {
       .step { font: 600 27px "PingFang SC", "Noto Sans CJK SC", "Heiti SC", sans-serif; fill: #111827; }
     </style>
     <rect width="1600" height="900" fill="url(#shade)"/>
+    <rect x="0" y="700" width="1600" height="200" fill="rgba(0,0,0,.62)"/>
+    <rect x="0" y="798" width="1600" height="102" fill="rgba(0,0,0,.92)"/>
     <g filter="url(#softShadow)">
       <rect x="54" y="54" width="118" height="44" rx="22" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.30)"/>
       <text x="82" y="84" class="eyebrow">马上试</text>
