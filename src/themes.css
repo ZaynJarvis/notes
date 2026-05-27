@@ -338,8 +338,13 @@ a.b-tag:hover { color: var(--th-ink); border-color: var(--th-ink); }
 .b-list__sort-short { display: none; }
 
 .b-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.b-empty { border: 1px dashed var(--th-line); border-radius: var(--th-radius); padding: 40px 44px; margin-top: 24px; background: var(--th-bg-2); max-width: 760px; }
+.b-empty h2 { margin: 0 0 12px; font-family: var(--th-font-display); font-size: clamp(26px, 3vw, 40px); font-weight: 500; letter-spacing: 0; }
+.b-empty p { margin: 0; color: var(--th-mute); font-size: 16px; line-height: 1.55; max-width: 54ch; }
 @media (max-width: 720px) {
   .b-card-grid { grid-template-columns: 1fr; gap: 16px; }
+  .b-empty { padding: 24px 20px; margin-top: 18px; }
+  .b-empty p { font-size: 14px; }
   .b-list { padding: 0 16px 64px; }
   .b-list__bar { gap: 8px; align-items: center; flex-wrap: nowrap; padding: 10px 0; margin-bottom: 20px; font-size: 11px; }
   .b-list__filters { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }

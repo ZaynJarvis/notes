@@ -1,6 +1,6 @@
-# OpenViking Blog
+# Zayn Notes
 
-Standalone static build of the OpenViking blog.
+Standalone static notes site for notes.zaynjarvis.com.
 
 ## Development
 
@@ -30,11 +30,11 @@ Vercel can deploy this repository directly:
 Set `VITE_SITE_URL` to the production origin, for example:
 
 ```bash
-VITE_SITE_URL=https://openviking-blog.vercel.app
+VITE_SITE_URL=https://notes.zaynjarvis.com
 ```
 
-If `VITE_SITE_URL` is omitted, the build keeps the canonical OpenViking blog
-origin: `https://blog.openviking.ai`.
+If `VITE_SITE_URL` is omitted, the build uses the canonical notes origin:
+`https://notes.zaynjarvis.com`.
 
 ## Zouk Embed
 

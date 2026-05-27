@@ -1,4 +1,4 @@
-# OpenViking Blog Agent Notes
+# Zayn Notes Agent Notes
 
 Read `design.md` before changing blog content or shell UI. The notes below are the short operational rules that have caused review issues before.
 

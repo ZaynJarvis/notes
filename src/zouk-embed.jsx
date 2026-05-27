@@ -9,7 +9,7 @@ const CONFIG = {
   guestName: import.meta.env.VITE_ZOUK_GUEST_NAME || 'reader',
 };
 
-const BROWSER_ID_KEY = 'openviking.zouk.browserId';
+const BROWSER_ID_KEY = 'zayn-notes.zouk.browserId';
 const CLOSE_ANIMATION_MS = 220;
 
 function browserAvailable() {

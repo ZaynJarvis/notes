@@ -1,25 +1,19 @@
-# design.md — Authoring guide for OpenViking Blog posts
+# design.md — Authoring guide for Zayn Notes posts
 
-You are an agent adding a post to the **OpenViking Blog**. This document is the contract.
+You are an agent adding a post to **Zayn Notes**. This document is the contract.
 
 ---
 
-## Practical notes from OpenViking blog case studies
-
-For the full review trail and tradeoffs, read the case studies:
-[`docs/case-studies/openviking-context-post.md`](docs/case-studies/openviking-context-post.md) and
-[`docs/case-studies/openviking-context-architecture-post.md`](docs/case-studies/openviking-context-architecture-post.md).
-For blog-wide mobile/PWA polish, also read
-[`docs/case-studies/mobile-pwa-polish.md`](docs/case-studies/mobile-pwa-polish.md).
+## Practical notes
 
 1. Build for two readers: the HTML page is for humans, while `/post/<slug>/llm.txt` is for agents. Keep `llm.txt` clean, source-like, and English-only when requested; expose it through page metadata and `/llms.txt`, not through visible helper copy.
 2. Let the article structure drive the TOC. Use `H2` for major sections, `H3` for TOC-level blocks, and `H4` inside cards/panels. Do not add TOC index numbers. Folding is opt-in via `TOC foldable`; default should stay expanded.
 3. Prefer visible, scrollable presentation over hidden click-to-reveal panels. Tabs and chips should focus attention, not duplicate a working TOC or become the only way to discover content.
-4. Treat covers as editorial signals, not diagrams. For OpenViking architecture posts, prefer airy watercolor on cream paper with generous negative space, subtle OV logo hints, warm gold/sage/graphite palettes, and no literal keys, locks, oversized logos, dense diagrams, or blue/purple-dominant branding. Keep high-res imagery for post hero/OG, and provide a lighter `cardCover` for index cards when the source image is large.
+4. Treat covers as editorial signals, not diagrams. Prefer imagery with generous negative space and clear subject matter. Keep high-res imagery for post hero/OG, and provide a lighter `cardCover` for index cards when the source image is large.
 5. Respect the post language end to end. Switching language must update body, shell-adjacent UI such as TOC, dates, and labels without requiring refresh.
 6. For Lark-derived posts, keep source provenance in authoring notes or internal review docs. Add it to public metadata only when the source URL is safe for public readers. Validate custom component states in generated HTML; small CSS details like inline progress fills can break visible UI.
 7. For phone-view polish, use screenshots as the source of truth. Keep the first viewport content-first, collapse dense controls to one line by default, use real short mobile labels instead of clipped text, and add PWA icons/manifest without a service worker unless offline caching is explicitly wanted.
-8. Public Lark-derived posts need a publication-safety pass across every surface: zh HTML, en HTML, post `llm.txt`, generated page metadata, and site `/llms.txt`. Do not expose private Lark wiki URLs, internal domains, internal proxies, employee/speaker rosters, private home paths, or internal deployment/community instructions unless the user explicitly says that material is public. Prefer GitHub, `docs.openviking.ai`, and public discussion links for follow-up detail.
+8. Public Lark-derived posts need a publication-safety pass across every surface: zh HTML, en HTML, post `llm.txt`, generated page metadata, and site `/llms.txt`. Do not expose private Lark wiki URLs, internal domains, internal proxies, employee/speaker rosters, private home paths, or internal deployment/community instructions unless the user explicitly says that material is public. Prefer public GitHub, docs, and discussion links for follow-up detail.
 9. Keep zh, en, and `llm.txt` content aligned. The agent-readable markdown can be plainer than the human page, but it must not contain extra internal details or source-only sections that the public zh/en article intentionally removed. If the human post uses a public-facing summary table, make `llm.txt` use the same public boundary.
 10. When converting a private or source document into a public blog post, write the HTML as the final article, not as commentary about the source. Readers cannot see the original document. Draft Chinese first for direct public prose, remove roundabout framing such as "the point is not..." review notes, then align English and `llm.txt` to that public version.
 11. Reading time should be estimated from rendered article text using Chinese character count and English word count. Treat `meta.readingTime` as a fallback for SSR/index cards, not as the source of truth for the post page.

@@ -1,3 +1,3 @@
-const DEFAULT_SITE_URL = 'https://blog.openviking.ai';
+const DEFAULT_SITE_URL = 'https://notes.zaynjarvis.com';
 
 export const SITE_URL = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');

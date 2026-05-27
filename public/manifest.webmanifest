@@ -1,7 +1,7 @@
 {
-  "name": "OpenViking Blog",
-  "short_name": "OV Blog",
-  "description": "Technical notes from the OpenViking team.",
+  "name": "Zayn Notes",
+  "short_name": "Notes",
+  "description": "Personal engineering notes on agents, systems, product decisions, and the work behind them.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

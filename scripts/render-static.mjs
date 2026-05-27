@@ -9,7 +9,7 @@ const distDir = path.join(blogRoot, 'dist');
 const ssrDir = path.join(blogRoot, 'dist-ssr');
 const templatePath = path.join(distDir, 'index.html');
 const template = await readFile(templatePath, 'utf8');
-const DEFAULT_SITE_URL = 'https://blog.openviking.ai';
+const DEFAULT_SITE_URL = 'https://notes.zaynjarvis.com';
 
 function escapeHtml(value = '') {
   return String(value)
@@ -26,7 +26,7 @@ function escapeAttr(value = '') {
 
 function jsonLd(meta) {
   if (meta.type === 'article') {
-    const headline = meta.title.replace(/ \| OpenViking (Blog|博客)$/, '');
+    const headline = meta.title.replace(/ \| Zayn Notes$/, '');
     return {
       '@context': 'https://schema.org',
       '@type': 'Article',
@@ -42,8 +42,8 @@ function jsonLd(meta) {
       })),
       publisher: {
         '@type': 'Organization',
-        name: 'OpenViking',
-        url: 'https://github.com/volcengine/OpenViking',
+        name: 'Zayn Notes',
+        url: SITE_URL,
       },
       mainEntityOfPage: meta.canonical,
       keywords: meta.tags.join(', '),
@@ -53,7 +53,7 @@ function jsonLd(meta) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    name: 'OpenViking Blog',
+    name: 'Zayn Notes',
     description: meta.description,
     url: meta.canonical,
     blogPost: meta.posts.map(post => ({
@@ -79,7 +79,7 @@ function managedHead(meta) {
     `<meta name="description" content="${description}" />`,
     `<link rel="canonical" href="${canonical}" />`,
     `<meta property="og:type" content="${meta.type === 'article' ? 'article' : 'website'}" />`,
-    `<meta property="og:site_name" content="OpenViking Blog" />`,
+    `<meta property="og:site_name" content="Zayn Notes" />`,
     `<meta property="og:title" content="${escapeAttr(meta.title)}" />`,
     `<meta property="og:description" content="${description}" />`,
     `<meta property="og:url" content="${canonical}" />`,
@@ -157,15 +157,15 @@ async function writeRobots() {
 async function writeLlms(routes) {
   const postRoutes = routes.filter(route => route.route.name === 'post');
   const lines = [
-    '# OpenViking Blog',
+    '# Zayn Notes',
     '',
-    'Technical notes from the OpenViking team on agents, protocols, and systems.',
+    'Personal engineering notes on agents, systems, product decisions, and the work behind them.',
     '',
     '## Posts',
     '',
     ...postRoutes.map(route => {
       const meta = getPageMeta(route);
-      const title = meta.title.replace(/ \| OpenViking (Blog|博客)$/, '');
+      const title = meta.title.replace(/ \| Zayn Notes$/, '');
       const llm = meta.llmPath ? ` Agent-readable: ${SITE_URL}${meta.llmPath}.` : '';
       const source = meta.sourceUrl ? ` Source: ${meta.sourceUrl}.` : '';
       return `- [${title}](${meta.canonical}) - ${meta.description}${llm}${source}`;

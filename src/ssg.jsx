@@ -52,7 +52,7 @@ export function renderRoute({ route, lang = 'en', query = {} }) {
 }
 
 export function getPageMeta({ route, lang = 'en' }) {
-  const siteName = pickLocale({ en: 'OpenViking Blog', zh: 'OpenViking 博客' }, lang);
+  const siteName = 'Zayn Notes';
   const canonicalPath = buildPath(route, {});
 
   if (route.name === 'post') {
@@ -85,8 +85,8 @@ export function getPageMeta({ route, lang = 'en' }) {
     type: 'website',
     title: siteName,
     description: pickLocale({
-      en: 'Technical notes from the OpenViking team.',
-      zh: 'OpenViking 团队的技术笔记。',
+      en: 'Personal engineering notes on agents, systems, product decisions, and the work behind them.',
+      zh: '关于 Agent、系统、产品判断和实际工作的个人工程笔记。',
     }, lang),
     canonical: `${SITE_URL}/`,
     image: `${SITE_URL}/assets/logo.png`,
