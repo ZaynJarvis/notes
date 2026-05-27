@@ -81,6 +81,7 @@ function profileFor(category, id) {
 function scenario(id, category, input, output, material, result, steps) {
   const profile = profileFor(category, id);
   const visual = visualPages[id];
+  const practice = asset(`practice/${String(id).padStart(2, '0')}.jpg`);
   return {
     id,
     category,
@@ -92,6 +93,7 @@ function scenario(id, category, input, output, material, result, steps) {
     material,
     result,
     steps,
+    practice,
     visual: visual ? {
       page: asset(visual.page),
       slices: Array.from({ length: visual.count }, (_, index) => asset(`slices/${visual.base}-p${index + 1}.jpg`)),
@@ -194,6 +196,8 @@ const styles = `
 .ai-notes__pillrow { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: 1rem; }
 .ai-notes__section { border-top: thin solid var(--th-line); padding-top: .9rem; margin-top: .9rem; }
 .ai-notes__section h4 { margin: 0 0 .65rem; font-family: var(--th-font-mono); font-size: .78rem; letter-spacing: 0; text-transform: uppercase; color: var(--th-mute); font-weight: 500; }
+.ai-notes__practice-visual { border: thin solid var(--th-line); border-radius: var(--th-radius); overflow: hidden; background: var(--ai-soft); margin-bottom: .7rem; }
+.ai-notes__practice-visual img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .ai-notes__steps { list-style: none; padding: 0; margin: 0; display: grid; gap: .45rem; }
 .ai-notes__steps li { display: grid; grid-template-columns: 1.65rem minmax(0, 1fr); gap: .55rem; border: thin solid var(--th-line); border-radius: var(--th-radius); background: var(--ai-soft); padding: .5rem; color: var(--th-ink); }
 .ai-notes__steps strong { display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 999rem; background: var(--th-accent); color: var(--th-bg); font-family: var(--th-font-mono); font-size: .75rem; font-weight: 500; }
@@ -262,6 +266,11 @@ function DetailPanel({ item, label }) {
 
       <div className="ai-notes__section">
         <h4>{label('马上怎么试')}</h4>
+        {item.practice ? (
+          <div className="ai-notes__practice-visual">
+            <img src={item.practice} alt={label(`${item.title} 练习图`)} loading="lazy" decoding="async" />
+          </div>
+        ) : null}
         <ol className="ai-notes__steps">
           {item.steps.map((step, index) => (
             <li key={step}>

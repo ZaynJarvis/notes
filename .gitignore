@@ -2,3 +2,4 @@ node_modules/
 dist/
 dist-ssr/
 .vercel
+src/posts/ai-capability-notes/assets/practice/raw/
