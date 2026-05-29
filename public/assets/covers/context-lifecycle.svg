@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Context lifecycle cover</title>
+  <desc id="desc">A calm editorial illustration of layered context state, evidence, scaffold, and resume checkpoints.</desc>
+  <rect width="1600" height="900" fill="#f7f3ea"/>
+  <path d="M0 730 C240 650 420 760 640 690 C900 608 1110 620 1600 510 L1600 900 L0 900 Z" fill="#d7e9df"/>
+  <path d="M1020 0 C1160 170 1360 230 1600 220 L1600 0 Z" fill="#e9d9b8"/>
+  <g transform="translate(248 164)">
+    <rect x="0" y="0" width="860" height="520" rx="36" fill="#fffdf8" stroke="#17201b" stroke-width="4"/>
+    <rect x="70" y="78" width="550" height="56" rx="18" fill="#17201b"/>
+    <rect x="70" y="170" width="710" height="38" rx="16" fill="#c7d7cf"/>
+    <rect x="70" y="238" width="580" height="38" rx="16" fill="#ead7ad"/>
+    <rect x="70" y="306" width="670" height="38" rx="16" fill="#b9d9d6"/>
+    <rect x="70" y="374" width="440" height="38" rx="16" fill="#d9c6df"/>
+  </g>
+  <g transform="translate(930 278)">
+    <circle cx="130" cy="130" r="116" fill="#ffffff" stroke="#17201b" stroke-width="4"/>
+    <path d="M130 48 L130 130 L196 168" fill="none" stroke="#17201b" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="130" cy="130" r="18" fill="#4f7f68"/>
+  </g>
+  <g fill="none" stroke="#17201b" stroke-width="4" stroke-linecap="round">
+    <path d="M730 250 C818 250 830 346 920 346"/>
+    <path d="M770 510 C900 510 910 430 1030 430"/>
+    <path d="M1040 530 C940 620 780 620 650 540"/>
+  </g>
+  <g transform="translate(1120 550)">
+    <rect x="0" y="0" width="250" height="118" rx="26" fill="#17201b"/>
+    <rect x="34" y="34" width="182" height="18" rx="9" fill="#f7f3ea"/>
+    <rect x="34" y="66" width="118" height="18" rx="9" fill="#b9d9d6"/>
+  </g>
+</svg>

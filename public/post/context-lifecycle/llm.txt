@@ -1,0 +1,24 @@
+# 上下文压缩不是总结，是运行时检查点
+
+核心观点：长任务里的 Agent 不是用完文本窗口才失败，而是丢掉了可继续执行的状态。好的 compact 不只是摘要，而是一次 runtime checkpoint。
+
+普通 summary 保留叙事，但 Agent 需要可恢复的执行状态：目标、约束、决策、open loops、文件/任务锚点、工具边界、证据来源、风险和人审边界。本地 summary 容易在 context pressure 已经很高时发生，于是最容易丢 provenance、role constraints、tool/session state 和 scaffold 线索。
+
+Compact 更好的抽象是 runtime state transition：extract checkpoint -> rebuild scaffolding -> resume in fresh context。公开证据只能支持这个产品/工程判断，不能断言闭源 Remote Compact 的内部实现。
+
+公开证据：
+- OpenAI GPT-5.1-Codex-Max system card 说明模型被训练为通过 compaction 跨多个 context windows 工作，并且提到 compaction 需要 scaffolding 才能发挥能力。
+- OpenAI prompt caching docs 说明 cache 命中依赖稳定前缀，messages、images、tools 和 structured output schema 都可能参与缓存；这支持 stable scaffold 与 dynamic task state 分层。
+
+对 OpenViking 的产品判断：memory database 是必要底座，但更高抽象应该是 context lifecycle control。它应该覆盖 stable memory、session archive、compact checkpoint、deterministic scaffold、evidence resources、resume contract 和 invalidation/debug surface。
+
+设计检查表：
+- 目标和成功标准能不能穿过去？
+- 约束和角色边界能不能穿过去？
+- open loops 能不能穿过去？
+- 证据锚点能不能穿过去，包括文件、PR、任务、日志、截图、附件和原始工具输出？
+- 工具/session 状态能不能穿过去，包括已用工具、当前会话状态、不可假设的凭证和环境？
+- 风险和下一步能不能穿过去，包括回滚路径和人审边界？
+- 失败时能不能定位：checkpoint 丢了、证据缺了、权限错了，还是 scaffold 没装上？
+
+公开边界：本文不使用私有材料作为公开证据；相关观察只转成机制语言。涉及闭源实现的判断必须标注为推断。
