@@ -36,6 +36,18 @@ VITE_SITE_URL=https://notes.zaynjarvis.com
 If `VITE_SITE_URL` is omitted, the build uses the canonical notes origin:
 `https://notes.zaynjarvis.com`.
 
+## Visit Counter
+
+On each full browser page load, the site increments the Cloud counter once and keeps the returned value in React state. Client-side route changes do not make additional counter requests.
+
+Defaults:
+
+- `VITE_COUNTER_API_URL=https://cloud.zaynjarvis.com/counter/api`
+- `VITE_COUNTER_KEY=zayn_key`
+- `VITE_COUNTER_ENABLED=true`
+
+The Cloud service must allow the notes origin with `COUNTER_ALLOWED_ORIGINS=https://notes.zaynjarvis.com`.
+
 ## Zouk Embed
 
 The reader chat widget defaults to:
