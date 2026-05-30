@@ -1,0 +1,66 @@
+# Agent 系统的运行状态思维模型
+
+核心观点：复杂 Agent 系统里，真正要管理的不是任务列表或记忆文本，而是可恢复、可验证、可归属的运行状态。
+
+Zayn 当前最值得内化的不是更多泛泛高级概念，而是三件事：
+- 真实 runtime state。
+- 明确 source of truth。
+- 可复现 feedback loop。
+
+Zouk / OpenViking / agents 的复杂度主要来自 state 在 UI、server、daemon、runtime、repo、部署产物之间漂移。
+
+八个关键思维模型：
+
+1. Runtime Contract > 代码叙事。
+   不要相信函数名、注释、PR description 表面叙事。沿 UI -> API -> server -> daemon -> runtime 查谁真正消费哪个字段，哪个值触发哪个行为。
+
+2. State Transition > 静态状态。
+   线上问题常常不是状态错，而是从 A 到 B 的过程缺 guard、invalidation、ack、broadcast 或 persistence。重点看 workspace switch、daemon restart、agent stop/start、连接重建、activity 更新这些 transition。
+
+3. Source-of-Truth Routing。
+   修错 repo、旧 worktree、备份 daemon、全局 npm 包或错误部署产物，比修错代码更常见。动手前先确认 source repo、发布产物、运行进程、部署路径和线上版本验证方式。
+
+4. Behavior Fix 与 Cleanup 解耦。
+   用户当前行为错了，先修 behavior contract。死代码、老接口、helper 重复、架构清理是后续任务。把热修和 cleanup 混在一个 PR 会扩大范围、增加验证和 rollback 难度。
+
+5. Evidence Ladder。
+   技术更新必须区分 confirmed fact、inference、proposal。事实来自日志、代码、接口返回、测试输出、commit、version、CI 状态；推断必须可被反证；建议动作要给验证和风险边界。
+
+6. User-Visible Feedback Loop。
+   Zouk 是协作 runtime，不只是 UI。影响协作的错误不应只留在日志或 activity panel，应进入协作流：哪个 bot、哪个 daemon、什么错、是否可重试。
+
+7. Default Path as Product Contract。
+   默认路径不是 UI convenience，而是产品对用户第一眼应该看到什么的承诺。默认打开内容应该服务最高频判断，而不是暴露原始树的第一层。
+
+8. Small Patch, Full Verification。
+   小 patch 也要完整验证闭环。Zouk UI 至少 typecheck/build/必要 Playwright；daemon 要 test/build/publish/PM2 定向 restart/version + Connected + Sent ready；notes 发布要 build/rendered routes/pushed commit。
+
+应该跳过或降权的模型：
+- 泛泛的系统思维、第一性原理、复杂系统涌现，除非能落到 runtime contract。
+- agent swarm 自动化最大化叙事。目前更重要的是 ownership、review、handoff、状态可见性。
+- CQRS、event sourcing、microservice boundary 这类架构炫技。Zouk 当前很多问题不是缺复杂架构，而是 transition 和 source-of-truth 没画清。
+- 纯 prompt engineering。对当前系统最有用的是工具、状态、部署、证据链。
+- 只讲抽象 memory 的模型。OpenViking 更应该讲成 context lifecycle / checkpoint / provenance / rehydration。
+
+默认调试协议：
+1. 当前用户可见错误是什么？它在哪个 transition 出现？
+2. 谁真正决定这个行为？字段、协议、版本、owner 是什么？
+3. 应该改哪个 repo？发布产物是什么？运行进程吃哪个版本？
+4. confirmed fact / inference / proposal 分别是什么？
+5. 行为修复是什么？cleanup 是否需要拆出去？
+6. 用户是否能看见错误、恢复、进展？
+7. 如何证明代码、产物、部署、运行态都一致？
+8. 还可能在哪个 transition 漂移？rollback 路径是什么？
+
+Knowledge Update Card：
+- 这次解决的问题：把 Louise 对 Zayn/Zouk/OpenViking 协作的工程判断，压缩成可复用的 8 个思维模型。
+- Zayn 读前的 prior：大概率已经理解系统复杂，但容易在具体任务里被 repo、runtime、部署产物、transition 边界同时拉扯。
+- 关键增量：不要把复杂度理解成功能多；它主要来自 state 跨层漂移。
+- 更新后的模型：每个判断都要落到 runtime contract、source-of-truth routing、feedback loop。
+- 适用边界：适用于 Zouk、OpenViking、agent runtime、部署链路、协作系统调试；不适合替代深层算法/模型能力研究。
+- 反例或 failure mode：如果问题本身是业务方向或用户价值错了，只看 runtime state 会过度工程化。
+- 对工程判断的影响：先画运行链路和状态转换，再决定 PR 范围；先修 behavior contract，再 cleanup。
+- 还没解决的问题：这些模型还需要转成 Zouk/OV 的具体 checklist、PR template、agent handoff protocol。
+- 下一步最小行动：下一次 bugfix 或 deploy 复盘时，用八步协议写一版 evidence -> root cause -> validation -> risk。
+
+最后压缩：复杂 Agent 系统的核心能力，不是会做更多任务，而是状态不会漂移，漂移后能被看见、归因、恢复。
