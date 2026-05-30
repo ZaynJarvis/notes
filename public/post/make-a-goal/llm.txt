@@ -1,0 +1,82 @@
+# 如何做出一个目标
+
+核心观点：目标不是一句愿望、KPI 或 SMART 句子，而是一个让未来行为在不确定性下持续校准的控制系统。
+
+一个能运行的目标至少包含：
+- Vision：这个方向为什么值得存在。
+- Identity hypothesis：如果持续做，我在验证自己会成为谁。
+- Goal type：outcome / performance / learning / exploration。
+- Desired state：30-90 天后现实中什么会不同。
+- Current state：现在真实状态是什么。
+- Daily control variable：今天或本周能控制什么。
+- Feedback：哪个 leading indicator 或 learning signal 告诉我是否有效。
+- Obstacle：最可能打断我的阻力是什么。
+- If-then plan：阻力出现时立刻做什么。
+- Review / kill criteria：什么时候继续、调整、暂停或杀掉。
+
+Zayn 当前不是缺大方向，而是缺把大方向变成 daily-correctable identity evidence 的系统。已有方向包括 OpenViking、Zouk、human-AI collaboration substrate、context lifecycle 和 agent runtime。真正缺的是中间层：从 vision 到 identity hypothesis，再到可验证目标、daily variable 和 feedback loop。
+
+必要思维模型：
+
+1. 目标是控制系统。
+   结构是 desired state -> current state -> gap -> operation -> feedback -> update。目标感不是一句燃的话，而是一个能每天修正的变量。
+
+2. 目标有层级。
+   目标至少穿过 vision、identity、outcome、project/strategy、daily control variable 五层。Zayn 当前不是缺 vision，而是缺从 vision 到 daily control variable 的中间结构。
+
+3. 目标类型不同。
+   Outcome goal 适合结果清晰场景；performance goal 适合稳定输出；learning goal 适合策略未知；exploration goal 适合不知道自己想要什么的时候。Zayn 现在更适合 exploration goal 或 learning goal，而不是直接承诺一个大 outcome。
+
+4. Goal-setting theory。
+   具体且有挑战性的目标通常比 do your best 更有效，但需要 commitment、feedback、能力或学习策略。复杂任务不要只压 outcome，要允许 learning goal。
+
+5. Feedback loop。
+   目标没有反馈就只是意图。Lagging indicators 如阅读量和收入来得太慢；leading indicators 和 learning signals 才能指导今天。
+
+6. Self-Determination Theory / self-efficacy。
+   动机不是一种东西。持续投入需要 autonomy、competence、relatedness，也需要相信自己能有效行动。没热情时应先诊断这四个维度，而不是直接判断方向没价值。
+
+7. Mental contrasting。
+   不只幻想未来，要把 wish 和 present obstacle 放在一起。实践格式是 Wish -> Outcome -> Obstacle -> Plan。
+
+8. Implementation intentions。
+   不只写 I will do X，要写 If situation Y happens, then I will do Z。目标系统要提前把常见阻力编译成触发器。
+
+9. Goal systems。
+   目标不是列表，而是目标、手段、子目标构成的网络。Zayn 的 product、notes、agent workflow、research、identity construction 不应是平行 todo，而应组织成一个 goal graph。
+
+10. Goal shielding。
+   重要目标需要边界，避免相似但低价值目标偷走资源。不能产生 artifact、decision update、workflow primitive 或 user-visible improvement 的任务，不应吃掉当天最好的时间。
+
+11. Exploration vs exploitation。
+   当方向不确定时，目标应该帮助 exploration：生成证据、比较能量、发现偏好、暴露反例。把探索目标写成执行 KPI 会制造错误压力。
+
+12. Goal review。
+   目标不是拿来死守的，而是像产品假设一样被 review。需要 daily/weekly/monthly review 和 kill criteria。
+
+Zayn 的最小行动方案：
+未来 7 天，每天完成一个 Zayn/OV update。每个 update 必须把一个真实摩擦转成 durable artifact：note、issue、PR、checklist、demo、decision memo 或 workflow rule。每天记录它是否产生 agency、competence、relatedness 和 identity coherence。
+
+7 天后 review：
+- 哪类 artifact 最像我想长期做的东西。
+- 哪类 artifact 只是消耗短期执行力。
+- 哪个方向值得转成 30 天 commitment。
+- provisional identity 哪部分更可信。
+- 下一个目标应该是 exploration、learning、performance 还是 outcome。
+
+Goal Quality Checklist：
+一个目标写完后必须回答：
+- 它服务哪个 vision？
+- 它验证哪个 identity hypothesis？
+- 它是哪种 goal type？
+- 它有没有 desired state？
+- 它有没有 current state？
+- 它有没有 daily / weekly control variable？
+- 它有没有 leading indicator？
+- 它有没有 learning signal？
+- 它有没有 feedback cadence？
+- 它有没有主要 obstacle？
+- 它有没有 if-then implementation intention？
+- 它有没有 kill / pivot criteria？
+
+最后压缩：如果一个目标没有 daily control variable、feedback、if-then 和 review，它就不是目标，只是愿望。目标感不是想出来的，是在可纠错行动里长出来的。
