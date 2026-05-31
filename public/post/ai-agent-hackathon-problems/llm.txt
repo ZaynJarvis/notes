@@ -1,0 +1,126 @@
+# AI Agent Hackathon 题目怎么写
+
+核心观点：一个好的 AI agent hackathon 题目，不应该让学生再做一个聊天机器人或 RAG demo。它应该把真实工程问题压成 72 小时内可实现、可评审、可比较的 artifact。
+
+题目的目标不是展示“用了 AI”，而是筛出能处理状态、工具、证据、边界和失败恢复的人。
+
+招聘型 hackathon 的题目不是课堂作业。它同时承担三件事：
+- 让学生理解团队在做什么。
+- 让团队看到学生如何拆问题。
+- 让评委能用相同标准比较不同方案。
+
+一个好题必须穿过四个约束：
+- 真实：来自团队正在面对的工程摩擦。否则题目像玩具。
+- 可做：72 小时内能做出可运行 artifact。否则学生只能写方案。
+- 可评：有明确输入、输出、边界和评分信号。否则评委只能凭演示观感打分。
+- 安全：不暴露内部系统、数据、客户、流程和项目名。否则公开传播时留下不必要风险。
+
+不要写成“做一个 AI agent”。这是低信号题。它鼓励学生堆模型、工具和 UI，但很少暴露真正的工程能力。更好的题面应该指定 agent 要面对的控制问题：上下文预算、事件流、工具失败、证据链、或阅读时的模型更新。
+
+如果一个题目换成任何 LLM wrapper 都能交付，它就不是一个好题。好题应该迫使参赛者处理机制、边界和 failure mode。
+
+五个适合当前 AI agent 方向的题：
+
+1. 长任务 Agent 的上下文预算管理器
+
+问题：长任务 agent 经常在两种失败之间摆动：保留太多噪音，或者丢掉关键状态。参赛者要做一个系统，在固定 token budget 下选择、压缩、引用和恢复最小可用上下文。
+
+交付：
+- 上下文选择 pipeline。
+- keep/drop 理由。
+- 可回读引用。
+- 小型评测集。
+- API 或 UI demo。
+
+评审信号：
+- 引用是否正确。
+- 是否能拒绝过期或无关信息。
+- 是否区分 memory、session、checkpoint 和 scaffold。
+
+风险：如果不设计恢复评测，它会退化成普通 RAG demo。
+
+2. 多 Agent 工作区时间线调试器
+
+问题：多 agent 协作时，消息、工具调用、任务状态、错误和验证结果会形成一条嘈杂事件流。参赛者要重建“到底发生了什么”，找出阻塞、重复工作、危险交接和缺失证据。
+
+交付：
+- 事件 ingestion schema。
+- 时间线 UI。
+- 阻塞检测。
+- 任务状态 reconciliation report。
+
+评审信号：
+- 能否回答谁做了什么。
+- 证据是什么。
+- 现在卡在哪里。
+- 下一步该谁处理。
+
+风险：如果只展示日志，它没有价值。题目必须要求诊断和下一步建议。
+
+3. Agent 工具调用可靠性测试台
+
+问题：agent 失败常常不是模型不会回答，而是工具出错、权限缺失、状态过期、参数错误、危险重试或半成功状态未处理。参赛者要构造一个 failure harness，测试 agent 能否安全恢复。
+
+交付：
+- 工具失败模拟器。
+- 恢复策略。
+- trace viewer。
+- 评分 rubric。
+
+评审信号：
+- 是否区分权限错误、暂时性错误、破坏性操作、参数错误和 ambiguous state。
+- 是否会在必要时升级给人，而不是盲目重试。
+
+风险：如果只做 retry framework，信号不够。场景必须包含安全和部分成功。
+
+4. 面向技术材料的 source-grounded reading copilot
+
+问题：大多数 summarizer 会把技术材料压平成低价值摘要。参赛者要做一个阅读 copilot，先捕捉读者 prior，再判断哪些内容可能改变模型，最后给出有来源的 knowledge update card。
+
+交付：
+- 文档 ingestion。
+- prior capture。
+- gap classifier。
+- 带引用的 update card。
+- review questions。
+
+评审信号：
+- 是否能跳过已知背景。
+- 是否能提取 mechanism、boundary、failure mode 和 trade-off。
+- 是否能准确引用来源。
+
+风险：非常容易被误解成总结器。题面要明确 generic summary 不算成功。
+
+5. 工程任务 evidence pack 生成器
+
+问题：工程 agent 经常说“done”，但人类很难判断它是否真的完成。参赛者要把 diff、测试、日志、截图、部署检查和 PR metadata 转成紧凑证据包。
+
+交付：
+- repo/task trace parser。
+- evidence pack generator。
+- policy checks。
+- 示例报告。
+
+评审信号：
+- 是否能把 root cause、change、validation、residual risk 和 rollback 对齐到证据。
+- 是否能标出缺失测试、未验证变更和部署风险。
+
+风险：如果只是把日志改写成 prose，就没有用。难点是 claim-evidence alignment。
+
+排序：
+1. 长任务 Agent 的上下文预算管理器：技术深，能直接测 context、state、compression 和 evidence 的理解。
+2. 多 Agent 工作区时间线调试器：demo 更容易打动人，也更容易讲清楚多 agent 协作的真实问题。
+3. Agent 工具调用可靠性测试台：工程招聘信号强。
+4. 工程任务 evidence pack 生成器：实用，但需要避免变成日志改写器。
+5. Source-grounded reading copilot：个人方向很贴，但题面必须避免 summarizer 误解。
+
+正式 problem statement 至少需要：
+- 背景：这个问题为什么真实存在。
+- 任务：参赛者要构建什么，输入输出是什么。
+- 数据：给什么 mock trace、文档、日志或任务样本。
+- 最低要求：必须实现哪些功能。
+- 进阶方向：允许强队拉开差距的空间。
+- 交付物：代码、demo、报告、评测结果、设计解释。
+- 评分标准：正确性、鲁棒性、可解释性、产品完成度、工程质量。
+
+最后压缩：好题不是让学生证明他们会调 API，而是让他们在受限时间里暴露工程判断：状态怎么保存，证据怎么对齐，失败怎么恢复，边界怎么保护。
