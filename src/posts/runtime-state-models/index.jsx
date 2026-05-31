@@ -14,7 +14,7 @@ import {
   Pre,
 } from '../../blog-components';
 
-const cover = '/assets/covers/runtime-state-models.svg';
+const cover = '/assets/covers/runtime-state-models.png';
 
 const RuntimeStateModels = ({ t }) => {
   const label = (value) => t({ zh: value });

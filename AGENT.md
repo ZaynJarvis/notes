@@ -9,6 +9,7 @@ Read `design.md` before changing blog content or shell UI. The notes below are t
   - Source-bundled article assets: `src/posts/<slug>/assets/<descriptive-name>.<ext>` and import them from the post component.
   - Public static assets that must keep a stable URL: `public/post/<slug>/images/<descriptive-name>.<ext>`.
   - Shared covers reused across cards or posts: `public/assets/covers/<slug>.<ext>`.
+- Final cover images should be Codex imagegen PNG assets. Do not use SVG covers, script-drawn covers, GitHub OpenGraph images, or placeholders as final post covers.
 - Use descriptive names or a clearly ordered figure series, such as `figure-01-setup.jpg` or `figure-01.jpg` through `figure-NN.jpg` within that post's own folder.
 - Avoid hotlinking source images. Localize, resize, and compress images before opening a PR.
 - Every visible figure needs localized `alt` and localized `caption`.

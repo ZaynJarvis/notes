@@ -12,7 +12,7 @@ import {
   A,
 } from '../../blog-components';
 
-const cover = '/assets/covers/context-lifecycle.svg';
+const cover = '/assets/covers/context-lifecycle.png';
 const codexSystemCard = 'https://cdn.openai.com/pdf/2a7d98b1-57e5-4147-8d0e-683894d782ae/5p1_codex_max_card_03.pdf';
 const promptCachingGuide = 'https://developers.openai.com/api/docs/guides/prompt-caching';
 

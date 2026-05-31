@@ -15,7 +15,7 @@ import {
   Pre,
 } from '../../blog-components';
 
-const cover = '/assets/covers/make-a-goal.svg';
+const cover = '/assets/covers/make-a-goal.png';
 const lockeLatham = 'https://goal-lab.psych.umn.edu/orgPsych/readings/5.%20Motivation/Locke%20%26%20Latham%20%282002%29.pdf';
 const selfDetermination = 'https://pubmed.ncbi.nlm.nih.gov/11392867/';
 const bandura = 'https://pubmed.ncbi.nlm.nih.gov/847061/';

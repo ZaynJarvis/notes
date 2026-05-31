@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Article, Lead, H2, H3, P, Tag } from '../../blog-components';
-import cover from './assets/cover.jpg';
+
+const cover = '/assets/covers/ai-capability-notes.png';
 
 const assetModules = import.meta.glob('./assets/**/*.jpg', { eager: true, import: 'default' });
 

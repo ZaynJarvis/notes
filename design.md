@@ -9,7 +9,7 @@ You are an agent adding a post to **Zayn Notes**. This document is the contract.
 1. Build for two readers: the HTML page is for humans, while `/post/<slug>/llm.txt` is for agents. Keep `llm.txt` clean, source-like, and English-only when requested; expose it through page metadata and `/llms.txt`, not through visible helper copy.
 2. Let the article structure drive the TOC. Use `H2` for major sections, `H3` for TOC-level blocks, and `H4` inside cards/panels. Do not add TOC index numbers. Folding is opt-in via `TOC foldable`; default should stay expanded.
 3. Prefer visible, scrollable presentation over hidden click-to-reveal panels. Tabs and chips should focus attention, not duplicate a working TOC or become the only way to discover content.
-4. Treat covers as editorial signals, not diagrams. Prefer imagery with generous negative space and clear subject matter. Keep high-res imagery for post hero/OG, and provide a lighter `cardCover` for index cards when the source image is large.
+4. Treat covers as editorial signals, not diagrams. Generate final cover imagery with Codex imagegen and commit raster PNG assets. Prefer imagery with generous negative space and clear subject matter. Keep high-res imagery for post hero/OG, and provide a lighter `cardCover` for index cards when the source image is large.
 5. Respect the post language end to end. Switching language must update body, shell-adjacent UI such as TOC, dates, and labels without requiring refresh.
 6. For Lark-derived posts, keep source provenance in authoring notes or internal review docs. Add it to public metadata only when the source URL is safe for public readers. Validate custom component states in generated HTML; small CSS details like inline progress fills can break visible UI.
 7. For phone-view polish, use screenshots as the source of truth. Keep the first viewport content-first, collapse dense controls to one line by default, use real short mobile labels instead of clipped text, and add PWA icons/manifest without a service worker unless offline caching is explicitly wanted.
@@ -46,8 +46,8 @@ Posts **must not**:
 ```
 src/posts/<slug>/
   index.jsx          # required — default export registers the post
-  assets/            # optional — local images/SVGs for this post
-    figure-1.svg
+  assets/            # optional — local imagegen PNGs or localized screenshots for this post
+    figure-1.png
 ```
 
 Use the **slug** as the URL segment (`#/post/<slug>`). It must be lowercase-kebab-case, stable for the life of the post (treat it like a URL primary key — never rename), and unique across the site.
@@ -56,8 +56,8 @@ For shared assets (covers reused across posts, author avatars), add them under `
 
 ```
 public/assets/
-  covers/<name>.svg
-  avatars/<name>.svg
+  covers/<name>.png
+  avatars/<name>.png
 ```
 
 ---
@@ -115,7 +115,7 @@ Every field is required unless marked optional. Strings that face the reader **m
 |---|---|---|---|
 | `title` | `{ en, zh, ... }` | yes | Plain text. The shell renders it. |
 | `description` | `{ en, zh, ... }` | yes | One sentence. Shown on the index card and below the post title. |
-| `cover` | `string` | yes | Path to an SVG/PNG. Aspect ratio 16:9 or 16:7 is best. |
+| `cover` | `string` | yes | Path to an imagegen PNG. Aspect ratio 16:9 or 16:7 is best. |
 | `publishedAt` | `'YYYY-MM-DD'` | yes | ISO date. Drives ordering. |
 | `updatedAt` | `'YYYY-MM-DD'` | optional | Render only when meaningfully different from `publishedAt`. |
 | `readingTime` | `number` or `{ en, zh }` (minutes) | optional | Fallback for SSR/index cards. Prefer locale values for bilingual posts. The post page estimates reading time from rendered text by language. |

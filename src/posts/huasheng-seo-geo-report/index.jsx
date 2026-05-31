@@ -14,7 +14,7 @@ import {
   Pre,
 } from '../../blog-components';
 
-const cover = '/assets/covers/huasheng-seo-geo.svg';
+const cover = '/assets/covers/huasheng-seo-geo.png';
 const repoCommit = 'https://github.com/ZaynJarvis/huasheng/commit/73f5eda';
 const site = 'https://hua-sheng.org';
 const pagesDeploy = 'https://ca88322f.hua-sheng-site.pages.dev';
@@ -149,4 +149,3 @@ export default {
     ],
   },
 };
-
