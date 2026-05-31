@@ -1,0 +1,85 @@
+# The Default Session Should Feel Infinite / 默认 Session 应该无限长
+
+Core claim: the challenge is not to build a longer chat window. The challenge is to let users keep working in one default session while the system turns chaotic, multi-topic history into structured working state under a finite token budget.
+
+核心判断：这道题不是让学生做一个更长的聊天窗口，而是让用户一直在一个默认 session 里工作；系统内部自动把混乱、多话题历史整理成有限 token 下可继续执行的工作状态。
+
+## Plain problem
+
+Many AI products still treat a session as an append-only transcript. That fails when a user mixes code, product planning, deployment checks, research notes, quick side questions, multiple humans, and multiple agents in the same place. The model then guesses from recent context, the user has to manually split sessions, and stale conclusions get reused as if they were current facts.
+
+更好的产品不应该让用户管理 session。用户继续说话；系统判断当前输入属于哪个 topic 和 task，哪些约束仍然有效，哪些结论已经过期，这次回答需要组装哪些前缀，以及用了多少 token。
+
+## Problem statement
+
+Build a session management layer for long-running AI workspaces. It receives chaotic append-only session logs, segments topics and tasks, builds structured session state, and assembles the minimum useful context prefix for a single agent to answer correctly or continue work.
+
+The history may contain multi-human and multi-agent interactions, but evaluation uses a single-agent input. Multi-agent fanout is allowed as an implementation choice, not required. A state-centric Web demo is required because users will only trust the system if the state is visible.
+
+请构建一个面向长周期 AI workspaces 的 session management layer。它接收混乱的 append-only session log，自动切分 topic 和 task，构建结构化 session state，并在用户继续输入时组装最小有效上下文前缀，驱动单 agent 给出正确回答或继续完成任务。
+
+## Benchmark data
+
+The benchmark can be synthetic. Each case is one messy session containing startup noise, multiple topics, several humans, several agents, tool results, stale conclusions, and unfinished tasks.
+
+Example:
+
+```json
+{"id":"e001","type":"startup","speaker":"system","text":"Agent booted. Loading tools...","topic":null}
+{"id":"e014","type":"user","speaker":"human_a","text":"For the release, do not rely on external API calls during startup.","topic":"release"}
+{"id":"e026","type":"agent_note","speaker":"agent_research","text":"The failure is probably fixed by commit 71ab.","topic":"release","status":"inference"}
+{"id":"e031","type":"tool_result","speaker":"ci","text":"Regression test still fails when external API is disabled.","topic":"release","evidence_id":"ci-031"}
+{"id":"e044","type":"user","speaker":"human_b","text":"Switching topic: keep both 'Atlas' and 'Workbench' as product name candidates.","topic":"naming"}
+{"id":"e057","type":"summary","speaker":"agent_writer","text":"Release is likely ready; product naming is done.","topic":"mixed","status":"stale"}
+{"id":"e063","type":"user","speaker":"human_a","text":"Can we ship now? Also what remains open on naming?","topic":null}
+```
+
+Expected behavior: the system should say the release cannot ship because event `ci-031` shows the regression still fails with external APIs disabled. It should also say product naming remains open because two candidate names remain. It must not trust the stale summary in `e057`.
+
+## Deliverables
+
+- Runnable Web demo focused on state, not only chat.
+- `session_state.json`: topics, tasks, facts, inferences, decisions, open loops, artifacts, and stale claims.
+- `answers.jsonl`: answers to benchmark questions with evidence IDs.
+- `token_usage.json`: token usage for prefix assembly and final answers.
+- `implementation_review.md`: state model, prefix policy, model choices, and trade-offs.
+
+Bonus directions:
+- topic graph
+- prefix diff against append-only baseline
+- stale-state invalidation
+- multi-agent fanout for state construction or verification
+- LLM-assisted implementation review
+
+## Evaluation
+
+Evaluation focuses on:
+- Task performance: answers are correct and recover constraints, open loops, and evidence across topics.
+- Evidence grounding: key claims cite correct event/resource IDs and distinguish facts from inferences.
+- Token usage: the system beats recent-window, narrative-summary, and simple-RAG baselines with less or controlled context.
+- Session state design: the state is clear, machine-readable, and reusable by later agents.
+- Web product quality: state is visible, understandable, inspectable, and usable as a product.
+- Implementation review: human and LLM-assisted review of schema, routing, prefix policy, trade-offs, and reproducibility.
+
+## Technical boundaries
+
+The stack is open. Teams may use open-source or commercial LLMs, vector databases, graph databases, context databases, agent harnesses, browser automation, or custom tools.
+
+The solution cannot only say "we used RAG." Teams must explain the session state schema, topic routing, context prefix assembly, and token accounting.
+
+Final solutions should be open source. The benchmark evaluates not only the result, but also whether the implementation is reproducible and worth learning from.
+
+Multi-agent systems are allowed but not required. A strong single-agent implementation with a good session manager can score highly.
+
+## Three-day plan
+
+Day 1: parse the benchmark, define the state schema, run an append-only baseline.
+
+Day 2: implement topic/task routing, state extraction, prefix assembly, token accounting, and the first Web UI.
+
+Day 3: run all cases, improve task quality and token usage, finalize the state UI, report, and implementation explanation.
+
+## Final compression
+
+The goal is not to make sessions literally infinite. The goal is to hide session boundaries from the user by translating an infinite-session experience into correct working state under finite token budgets.
+
