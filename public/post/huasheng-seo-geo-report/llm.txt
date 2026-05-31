@@ -1,0 +1,63 @@
+# 华盛 hua-sheng.org SEO / GEO 免费优化执行报告
+
+核心观点：这次目标不是写建议，而是免费地把 hua-sheng.org 变成更容易被搜索引擎和生成式答案引擎读取、归因、引用和收录的公司站。
+
+执行结论：已完成代码、GitHub 元数据、Cloudflare Pages 部署、Cloudflare Worker canonical redirect、www DNS、线上验证和报告沉淀。核心变化是主站不再只依赖空 React shell，而是每个核心页面都有可爬取 HTML、独立 meta、canonical、JSON-LD、FAQ、sitemap 和 LLM facts surface。
+
+主要改动：
+- 技术 SEO：为 /、/about、/capabilities、/projects、/quality、/contact 生成静态可爬取 HTML。
+- 页面元数据：每个核心页面增加独立 title、description、canonical、Open Graph、Twitter card。
+- 结构化数据：增加 Organization、WebSite、WebPage、Service、FAQPage、BreadcrumbList、项目 ItemList。
+- GEO：新增 /llms.txt 和 /llms-full.txt。
+- 产品词入口：新增 /products/bus-shelters/、/products/advertising-light-boxes/、/products/metal-kiosks/、/products/precision-metal-oem/。
+- 索引控制：新增 robots.txt、sitemap.xml、404.html、site.webmanifest、_headers、_redirects。
+- 站内链接：把 React 导航 href="#" 改成真实 URL。
+- 可信度修正：去掉 placeholder ICP，更新 2026 年份，修正“三十六年”为“三十七年”，弱化未验证的 400W 激光切割表述。
+
+关键词覆盖：
+- bus shelter manufacturer / bus stop shelter supplier / smart bus shelter / public transit shelter。
+- advertising light box manufacturer / MUPI light box / outdoor display panels。
+- metal kiosk manufacturer / street kiosks / postal shelters / public service booths。
+- precision metal OEM / ODM / sheet metal fabrication / Guangzhou metal fabrication。
+- ISO 9001 metal manufacturing / DMAIC / IQC / IPQC / FQC。
+- 公交候车亭厂家 / 广告灯箱厂家 / 金属 OEM 代工 / 不锈钢工程。
+
+上线动作：
+- GitHub commit: https://github.com/ZaynJarvis/huasheng/commit/73f5eda
+- GitHub repo description 已设置为官方站点 + bus shelters / light boxes / OEM metal fabrication 描述。
+- GitHub topics 已添加 huasheng、guangzhou、metal-fabrication、bus-shelters、street-furniture、advertising-light-box、stainless-steel、oem、odm、manufacturing、cloudflare-pages、static-site。
+- Cloudflare Pages 已通过 Wrangler 部署。
+- Cloudflare DNS 已新增 www.hua-sheng.org CNAME。
+- Cloudflare Worker huasheng-site-proxy 已更新，处理 www -> apex、http -> https、/cases -> /projects、产品页 trailing slash，并取消原 300 秒 cacheEverything。
+
+线上验证：
+- https://hua-sheng.org/                         200 text/html; charset=utf-8
+- https://hua-sheng.org/about                    200 text/html; charset=utf-8
+- https://hua-sheng.org/projects                 200 text/html; charset=utf-8
+- https://hua-sheng.org/products/bus-shelters/   200 text/html; charset=utf-8
+- https://hua-sheng.org/llms.txt                 200 text/plain; charset=utf-8
+- https://hua-sheng.org/llms-full.txt            200 text/plain; charset=utf-8
+- https://hua-sheng.org/site.webmanifest         200 application/manifest+json
+- https://hua-sheng.org/not-real-page            404 text/html; charset=utf-8
+- https://hua-sheng.org/cases                    301 -> https://hua-sheng.org/projects
+- http://hua-sheng.org/                          301 -> https://hua-sheng.org/
+- https://www.hua-sheng.org/                     301 -> https://hua-sheng.org/
+
+关键页面：
+- 首页：https://hua-sheng.org/
+- Bus shelter 产品页：https://hua-sheng.org/products/bus-shelters/
+- Advertising light boxes 产品页：https://hua-sheng.org/products/advertising-light-boxes/
+- Metal kiosks 产品页：https://hua-sheng.org/products/metal-kiosks/
+- Precision metal OEM 产品页：https://hua-sheng.org/products/precision-metal-oem/
+- LLM facts: https://hua-sheng.org/llms.txt
+- LLM facts full: https://hua-sheng.org/llms-full.txt
+
+剩余建议：
+- 接 Google Search Console / Bing Webmaster Tools 并提交 sitemap，需要账号侧验证权限。
+- 把受控的旧官网、Alibaba、Made-in-China、GoldSupplier、LinkedIn、Google Business Profile、Bing Places 等目录资料统一链接到 https://hua-sheng.org。
+- 如果继续做中文 SEO，建议新增 /zh/ 页面，而不是只靠 JS 语言切换。
+- 长期性能优化：把浏览器 Babel + React UMD 改成 Vite production bundle。
+- 持续内容：每月增加 1-2 篇项目案例或工艺文章，并同步到 sitemap 和 llms-full.txt。
+
+最终判断：这轮最有价值的不是加几个 meta 标签，而是把 HuaSheng 从 JS-only 宣传页改成了可被 crawler、搜索引擎、目录系统和 LLM 都能直接消费的结构化公司资料库。
+

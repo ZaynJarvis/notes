@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">HuaSheng SEO and GEO work report</title>
+  <desc id="desc">A minimal report cover with search, sitemap, and LLM signals for HuaSheng Metal.</desc>
+  <rect width="1200" height="630" fill="#f5f5f2"/>
+  <rect x="72" y="72" width="1056" height="486" rx="28" fill="#ffffff" stroke="#d7d2c8"/>
+  <circle cx="170" cy="166" r="42" fill="#145bc4"/>
+  <path d="M150 166h40M170 146v40" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+  <text x="240" y="152" fill="#15191f" font-family="Inter, Arial, sans-serif" font-size="48" font-weight="700">HuaSheng SEO + GEO</text>
+  <text x="240" y="205" fill="#59616d" font-family="Inter, Arial, sans-serif" font-size="24">crawlable pages · structured data · llms.txt · canonical redirects</text>
+  <g fill="none" stroke="#145bc4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M174 364c62-76 132-104 210-84 70 18 123 82 199 78 80-4 118-81 190-99 81-20 157 22 232 104"/>
+    <path d="M164 434h872"/>
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#15191f">
+    <text x="152" y="508">Indexable HTML</text>
+    <text x="434" y="508">Product Landing Pages</text>
+    <text x="785" y="508">LLM Facts Surface</text>
+  </g>
+</svg>
+
