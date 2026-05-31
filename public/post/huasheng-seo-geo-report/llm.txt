@@ -2,7 +2,7 @@
 
 核心观点：这次目标不是写建议，而是免费地把 hua-sheng.org 变成更容易被搜索引擎和生成式答案引擎读取、归因、引用和收录的公司站。
 
-执行结论：已完成代码、GitHub 元数据、Cloudflare Pages 部署、Cloudflare Worker canonical redirect、www DNS、线上验证和报告沉淀。核心变化是主站不再只依赖空 React shell，而是每个核心页面都有可爬取 HTML、独立 meta、canonical、JSON-LD、FAQ、sitemap 和 LLM facts surface。
+执行结论：已完成代码、GitHub 元数据、Cloudflare Pages 部署、Cloudflare Worker canonical redirect、www DNS、线上验证和报告沉淀。追加一轮后，主站还有独立 /zh/ 中文 SEO 页面、同站 blog 内容目录、3 篇静态文章、外部目录实体链接和同步更新的 sitemap / llms-full.txt。
 
 主要改动：
 - 技术 SEO：为 /、/about、/capabilities、/projects、/quality、/contact 生成静态可爬取 HTML。
@@ -12,6 +12,9 @@
 - 产品词入口：新增 /products/bus-shelters/、/products/advertising-light-boxes/、/products/metal-kiosks/、/products/precision-metal-oem/。
 - 索引控制：新增 robots.txt、sitemap.xml、404.html、site.webmanifest、_headers、_redirects。
 - 站内链接：把 React 导航 href="#" 改成真实 URL。
+- 中文 SEO：新增独立 /zh/ 静态中文页面，不再只靠 JS 语言切换承接中文关键词。
+- 内容 SEO：新增 /blog/ 内容目录和 3 篇静态文章，接入 sitemap 和 llms-full.txt。
+- 实体一致性：把旧官网、Alibaba、Made-in-China、GoldSupplier、GitHub source 写入 sameAs、页面外链和 llms facts。
 - 可信度修正：去掉 placeholder ICP，更新 2026 年份，修正“三十六年”为“三十七年”，弱化未验证的 400W 激光切割表述。
 
 关键词覆盖：
@@ -23,7 +26,7 @@
 - 公交候车亭厂家 / 广告灯箱厂家 / 金属 OEM 代工 / 不锈钢工程。
 
 上线动作：
-- GitHub commit: https://github.com/ZaynJarvis/huasheng/commit/73f5eda
+- GitHub commit: https://github.com/ZaynJarvis/huasheng/commit/6d17a66
 - GitHub repo description 已设置为官方站点 + bus shelters / light boxes / OEM metal fabrication 描述。
 - GitHub topics 已添加 huasheng、guangzhou、metal-fabrication、bus-shelters、street-furniture、advertising-light-box、stainless-steel、oem、odm、manufacturing、cloudflare-pages、static-site。
 - Cloudflare Pages 已通过 Wrangler 部署。
@@ -35,6 +38,9 @@
 - https://hua-sheng.org/about                    200 text/html; charset=utf-8
 - https://hua-sheng.org/projects                 200 text/html; charset=utf-8
 - https://hua-sheng.org/products/bus-shelters/   200 text/html; charset=utf-8
+- https://hua-sheng.org/zh/                      200 text/html; charset=utf-8
+- https://hua-sheng.org/blog/                    200 text/html; charset=utf-8
+- https://hua-sheng.org/blog/bus-shelter-manufacturing-process/ 200 text/html; charset=utf-8
 - https://hua-sheng.org/llms.txt                 200 text/plain; charset=utf-8
 - https://hua-sheng.org/llms-full.txt            200 text/plain; charset=utf-8
 - https://hua-sheng.org/site.webmanifest         200 application/manifest+json
@@ -49,15 +55,31 @@
 - Advertising light boxes 产品页：https://hua-sheng.org/products/advertising-light-boxes/
 - Metal kiosks 产品页：https://hua-sheng.org/products/metal-kiosks/
 - Precision metal OEM 产品页：https://hua-sheng.org/products/precision-metal-oem/
+- 中文 SEO 页面：https://hua-sheng.org/zh/
+- Blog 内容目录：https://hua-sheng.org/blog/
+- 公交候车亭制造流程文章：https://hua-sheng.org/blog/bus-shelter-manufacturing-process/
+- 户外广告灯箱防候处理文章：https://hua-sheng.org/blog/outdoor-light-box-weatherproofing/
 - LLM facts: https://hua-sheng.org/llms.txt
 - LLM facts full: https://hua-sheng.org/llms-full.txt
 
+追加完成：
+- 新增 /zh/，页面原始 HTML 直接包含中文 H1、description、关键词、FAQ、内链和 zh-CN hreflang。
+- 把 /blog/ 合并进同一个 HuaSheng 站点，不需要单独部署第二个 Cloudflare 站。
+- 新增两篇可持续 SEO 内容样板：Bus Shelter Manufacturing Process 与 Outdoor Advertising Light Box Weatherproofing。
+- 旧 AI 应用会议内容迁成静态文章。
+- sitemap.xml、llms.txt、llms-full.txt 已同步新增 /zh/、/blog/ 和所有文章页。
+- 站内已经把旧官网、Alibaba、Made-in-China、GoldSupplier 与 GitHub source 作为官方资料入口写入 schema sameAs、页面链接和 llms facts。
+
+外部目录资料入口：
+- 旧官网：https://www.huasheng-metal.com/
+- Alibaba：https://gzhsgm.en.alibaba.com/
+- Made-in-China：https://gz-huasheng.en.made-in-china.com/
+- GoldSupplier：https://gzhsgm.goldsupplier.com/
+
 剩余建议：
 - 接 Google Search Console / Bing Webmaster Tools 并提交 sitemap，需要账号侧验证权限。
-- 把受控的旧官网、Alibaba、Made-in-China、GoldSupplier、LinkedIn、Google Business Profile、Bing Places 等目录资料统一链接到 https://hua-sheng.org。
-- 如果继续做中文 SEO，建议新增 /zh/ 页面，而不是只靠 JS 语言切换。
+- 登录受控的旧官网、Alibaba、Made-in-China、GoldSupplier、LinkedIn、Google Business Profile、Bing Places 后台，把 website/contact URL 统一改成 https://hua-sheng.org。站内侧 sameAs 和 checklist 已就位。
 - 长期性能优化：把浏览器 Babel + React UMD 改成 Vite production bundle。
-- 持续内容：每月增加 1-2 篇项目案例或工艺文章，并同步到 sitemap 和 llms-full.txt。
+- 持续内容：每月继续增加 1-2 篇项目案例或工艺文章；生成器已支持同步到 sitemap 和 llms-full.txt。
 
 最终判断：这轮最有价值的不是加几个 meta 标签，而是把 HuaSheng 从 JS-only 宣传页改成了可被 crawler、搜索引擎、目录系统和 LLM 都能直接消费的结构化公司资料库。
-
