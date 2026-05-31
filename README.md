@@ -54,7 +54,7 @@ The reader chat widget defaults to:
 
 - `VITE_ZOUK_SERVER_URL=https://zouk.zaynjarvis.com`
 - `VITE_ZOUK_WORKSPACE_ID=zayn`
-- `VITE_ZOUK_CHANNEL=blog`
+- `VITE_ZOUK_CHANNEL=notes`
 - `VITE_ZOUK_GUEST_NAME=reader`
 
 Override those variables only when deploying a different Zouk workspace/channel.

@@ -5,7 +5,7 @@ import { SITE_URL } from './site-config';
 const CONFIG = {
   serverUrl: (import.meta.env.VITE_ZOUK_SERVER_URL || 'https://zouk.zaynjarvis.com').replace(/\/+$/, ''),
   workspaceId: import.meta.env.VITE_ZOUK_WORKSPACE_ID || 'zayn',
-  channel: (import.meta.env.VITE_ZOUK_CHANNEL || 'blog').replace(/^#/, ''),
+  channel: (import.meta.env.VITE_ZOUK_CHANNEL || 'notes').replace(/^#/, ''),
   guestName: import.meta.env.VITE_ZOUK_GUEST_NAME || 'reader',
 };
 
