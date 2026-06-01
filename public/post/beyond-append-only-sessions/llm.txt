@@ -1,6 +1,6 @@
 # The Default Session Should Feel Infinite / 默认 Session 应该无限长
 
-Core claim: the challenge is not to build a longer chat window. The challenge is to let users keep working in one default session while the system turns chaotic, multi-topic history into structured working state under a finite token budget.
+Core claim: a user may discuss release work, naming, bugs, deployment, and side questions in one agent session. Hours later, recent context may point to the wrong topic or a stale conclusion. The challenge is to let the user keep working in one default session while the system turns chaotic, multi-topic history into structured working state under a finite token budget.
 
 核心判断：这道题不是让学生做一个更长的聊天窗口，而是让用户一直在一个默认 session 里工作；系统内部自动把混乱、多话题历史整理成有限 token 下可继续执行的工作状态。
 
@@ -9,6 +9,8 @@ Core claim: the challenge is not to build a longer chat window. The challenge is
 Many AI products still treat a session as an append-only transcript. That fails when a user mixes code, product planning, deployment checks, research notes, quick side questions, multiple humans, and multiple agents in the same place. The model then guesses from recent context, the user has to manually split sessions, and stale conclusions get reused as if they were current facts.
 
 更好的产品不应该让用户管理 session。用户继续说话；系统判断当前输入属于哪个 topic 和 task，哪些约束仍然有效，哪些结论已经过期，这次回答需要组装哪些前缀，以及用了多少 token。
+
+State here does not mean a narrative summary. It should be a machine-readable object containing active tasks, facts, inferences, decisions, open loops, stale claims, evidence IDs, and the assembled prefix for the next model call. Without that object, an “infinite session” is just a larger transcript.
 
 ## Problem statement
 
@@ -39,6 +41,7 @@ Expected behavior: the system should say the release cannot ship because event `
 ## Deliverables
 
 - Runnable Web demo focused on state, not only chat.
+- UI surfaces should include topic list, active task view, stale-claim warnings, evidence links, prefix preview or diff, and token budget display.
 - `session_state.json`: topics, tasks, facts, inferences, decisions, open loops, artifacts, and stale claims.
 - `answers.jsonl`: answers to benchmark questions with evidence IDs.
 - `token_usage.json`: token usage for prefix assembly and final answers.
@@ -54,12 +57,12 @@ Bonus directions:
 ## Evaluation
 
 Evaluation focuses on:
-- Task performance: answers are correct and recover constraints, open loops, and evidence across topics.
-- Evidence grounding: key claims cite correct event/resource IDs and distinguish facts from inferences.
-- Token usage: the system beats recent-window, narrative-summary, and simple-RAG baselines with less or controlled context.
-- Session state design: the state is clear, machine-readable, and reusable by later agents.
-- Web product quality: state is visible, understandable, inspectable, and usable as a product.
-- Implementation review: human and LLM-assisted review of schema, routing, prefix policy, trade-offs, and reproducibility.
+- Task performance, 35%: answers are correct and recover constraints, open loops, and evidence across topics.
+- Evidence grounding, 15%: key claims cite correct event/resource IDs and distinguish facts from inferences.
+- Token usage, 20%: the system beats recent-window, narrative-summary, and simple-RAG baselines with less or controlled context.
+- Session state design, 15%: the state is clear, machine-readable, and reusable by later agents.
+- Web product quality, 10%: state is visible, understandable, inspectable, and usable as a product.
+- Implementation review, 5%: human and LLM-assisted review of schema, routing, prefix policy, trade-offs, and reproducibility.
 
 ## Technical boundaries
 
@@ -82,4 +85,3 @@ Day 3: run all cases, improve task quality and token usage, finalize the state U
 ## Final compression
 
 The goal is not to make sessions literally infinite. The goal is to hide session boundaries from the user by translating an infinite-session experience into correct working state under finite token budgets.
-

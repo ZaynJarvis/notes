@@ -37,27 +37,27 @@ const zh = (value) => ({ zh: value.zh, en: value.en });
 
 const cards = [
   {
-    k: { zh: '产品目标', en: 'Product goal' },
-    title: { zh: '用户不再管理 session', en: 'Users stop managing sessions' },
+    k: { zh: '用户承诺', en: 'User promise' },
+    title: { zh: '用户只管继续说话，不再替系统切 session。', en: 'The user keeps talking instead of managing session boundaries.' },
     body: {
-      zh: '用户一直在默认 session 里工作。系统内部负责拆 topic、追 task、组装前缀、控制 token。',
-      en: 'Users keep working in one default session. The system handles topics, tasks, context prefixes, and token budgets internally.',
+      zh: '默认 session 里可以同时有 release、命名、bug、阅读和临时问题。系统负责判断当前输入到底回到了哪件事。',
+      en: 'One default session may contain release work, naming, bugs, reading, and side questions. The system decides which workstream the new input belongs to.',
     },
   },
   {
-    k: { zh: '技术核心', en: 'Technical core' },
-    title: { zh: 'session state 取代线性日志', en: 'Session state replaces linear logs' },
+    k: { zh: '系统机制', en: 'System mechanism' },
+    title: { zh: '线性日志只是原料，真正要维护的是工作状态。', en: 'The transcript is raw material; the product maintains working state.' },
     body: {
-      zh: 'append-only log 只是原材料。真正要交付的是 task、fact、decision、open loop、evidence 和 stale state。',
-      en: 'The append-only log is raw material. The product must expose tasks, facts, decisions, open loops, evidence, and stale state.',
+      zh: '这个状态至少要包含 active task、fact、decision、open loop、stale claim、evidence id 和下一次要发给模型的 prefix。',
+      en: 'That state should include active tasks, facts, decisions, open loops, stale claims, evidence IDs, and the next prefix sent to the model.',
     },
   },
   {
-    k: { zh: '评测方式', en: 'Evaluation' },
-    title: { zh: '看效果，也看 token', en: 'Measure quality and tokens' },
+    k: { zh: '评分信号', en: 'Scoring signal' },
+    title: { zh: '答案要对，证据要准，token 不能靠硬塞。', en: 'The answer must be right, cited, and not bought by stuffing context.' },
     body: {
-      zh: '最终看任务回答是否正确、是否引用证据、是否用更少上下文超过 append-only baseline。',
-      en: 'The final score depends on task answers, evidence grounding, and whether the system beats append-only baselines with less context.',
+      zh: '评测会看任务是否完成、是否拒绝过时结论、是否引用正确证据，以及是否比最近窗口/普通摘要/简单 RAG 更省 token。',
+      en: 'Evaluation checks task success, stale-claim rejection, evidence grounding, and token usage against recent-window, summary, and simple-RAG baselines.',
     },
   },
 ];
@@ -115,8 +115,8 @@ const BeyondAppendOnlySessions = ({ t }) => {
       <style>{styles}</style>
       <Lead>
         {t({
-          zh: '这道题不应该写成“做一个更长的聊天窗口”。真正的问题是：用户想一直在一个默认 session 里工作，系统能不能自动把混乱历史整理成可继续执行的状态。',
-          en: 'This challenge should not be framed as building a longer chat window. The real problem is whether a user can keep working in one default session while the system turns chaotic history into executable state.',
+          zh: '用户在同一个 agent session 里聊 release、命名、bug、部署和临时问题。几小时后他问“现在能发吗”，最近上下文可能刚好是错的。好产品不应该让用户靠手动切 session 自救。',
+          en: 'A user discusses release work, naming, bugs, deployment, and side questions in one agent session. Hours later they ask, “Can we ship now?” Recent context may be exactly the wrong context. A good product should not make the user rescue the system by manually switching sessions.',
         })}
       </Lead>
 
@@ -144,6 +144,12 @@ const BeyondAppendOnlySessions = ({ t }) => {
         {t({
           zh: '更好的产品不应该把这个负担丢给用户。用户只要继续说话。系统内部自动判断：这句话属于哪个 topic？关联哪个 task？之前哪些约束还有效？哪些结论已经过期？这次回答需要组装哪些前缀？用了多少 token？',
           en: 'A better product should not push that burden to the user. The user keeps talking. The system decides which topic the new input belongs to, which task it updates, which constraints still matter, which conclusions are stale, which prefix should be assembled, and how many tokens it spends.',
+        })}
+      </P>
+      <P>
+        {t({
+          zh: '这里说的 state 不是普通摘要。它应该是一个机器可读对象：active tasks、facts、inferences、decisions、open loops、stale claims、evidence ids，以及下一轮要发给模型的 assembled prefix。没有这个对象，“无限长 session”只是更大的聊天记录。',
+          en: 'State here does not mean a narrative summary. It should be a machine-readable object: active tasks, facts, inferences, decisions, open loops, stale claims, evidence IDs, and the assembled prefix for the next model call. Without that object, an “infinite session” is just a larger transcript.',
         })}
       </P>
 
@@ -233,21 +239,29 @@ const BeyondAppendOnlySessions = ({ t }) => {
       </P>
       <P>
         {t({
-          zh: '所以 banner image、cover image、信息层级、状态面板都重要。不是因为比赛要漂亮，而是因为 session state 本身不可见。好的前端要把不可见的工作记忆变成用户能理解、能检查、能纠正的界面。',
-          en: 'That is why the banner, cover, information hierarchy, and state panels matter. Not because the contest rewards decoration, but because session state is invisible by default. Good UI turns working memory into something users can understand, inspect, and correct.',
+          zh: '所以 banner、cover、信息层级和状态面板都重要，但不是为了装饰。session state 默认不可见。好的前端要把不可见的工作记忆变成用户能理解、能检查、能纠正的界面。',
+          en: 'That is why the banner, cover, information hierarchy, and state panels matter, but not as decoration. Session state is invisible by default. Good UI turns working memory into something users can understand, inspect, and correct.',
         })}
       </P>
+      <Ul marker="check">
+        <Li>{t({ zh: 'topic list：当前 session 里有哪些话题，哪些还 active。', en: 'Topic list: which topics exist in the session and which remain active.' })}</Li>
+        <Li>{t({ zh: 'active task view：当前输入命中了哪个 task，以及它依赖哪些旧约束。', en: 'Active task view: which task the new input hits and which old constraints it depends on.' })}</Li>
+        <Li>{t({ zh: 'stale-claim warning：哪些旧 summary 或 agent note 已经不能信。', en: 'Stale-claim warnings: which old summaries or agent notes should no longer be trusted.' })}</Li>
+        <Li>{t({ zh: 'evidence links：关键结论能跳回具体 event/resource id。', en: 'Evidence links: key claims jump back to concrete event or resource IDs.' })}</Li>
+        <Li>{t({ zh: 'prefix preview / diff：展示这次到底给模型塞了什么，和 append-only baseline 有什么不同。', en: 'Prefix preview or diff: show what is actually sent to the model and how it differs from an append-only baseline.' })}</Li>
+        <Li>{t({ zh: 'token budget：显示本次 prefix 和回答消耗了多少 token。', en: 'Token budget: show how many tokens the prefix and final answer spend.' })}</Li>
+      </Ul>
 
       <H2>{t({ zh: '怎么评', en: 'How it is evaluated' })}</H2>
       <Table
-        headers={[t({ zh: '维度', en: 'Dimension' }), t({ zh: '看什么', en: 'What to evaluate' })]}
+        headers={[t({ zh: '维度', en: 'Dimension' }), t({ zh: '权重', en: 'Weight' }), t({ zh: '看什么', en: 'What to evaluate' })]}
         rows={[
-          [t({ zh: '任务表现', en: 'Task performance' }), t({ zh: '回答是否正确，是否能跨话题恢复约束、open loop 和旧证据。', en: 'Whether answers are correct and recover constraints, open loops, and evidence across topics.' })],
-          [t({ zh: '证据引用', en: 'Evidence grounding' }), t({ zh: '关键结论是否引用正确 event/resource id，是否区分 fact 和 inference。', en: 'Whether key claims cite the correct event/resource IDs and distinguish facts from inferences.' })],
-          [t({ zh: 'Token usage', en: 'Token usage' }), t({ zh: '相比最近窗口、普通摘要、简单 RAG baseline，是否用更少上下文获得更好结果。', en: 'Whether it beats recent-window, narrative-summary, and simple-RAG baselines with less context.' })],
-          [t({ zh: '状态设计', en: 'State design' }), t({ zh: 'session state 是否结构清晰，可机器读取，可被后续 agent 继续使用。', en: 'Whether session state is clear, machine-readable, and reusable by later agents.' })],
-          [t({ zh: 'Web 产品感', en: 'Web product quality' }), t({ zh: '状态是否可见、可理解、可检查，页面是否能让用户想用。', en: 'Whether state is visible, understandable, inspectable, and usable as a product.' })],
-          [t({ zh: '实现横评', en: 'Implementation review' }), t({ zh: '用 LLM 和人工共同比较 schema、routing、prefix policy、取舍和可复现性。', en: 'Human and LLM-assisted review of schema, routing, prefix policy, trade-offs, and reproducibility.' })],
+          [t({ zh: '任务表现', en: 'Task performance' }), '35%', t({ zh: '回答是否正确，是否能跨话题恢复约束、open loop 和旧证据。', en: 'Whether answers are correct and recover constraints, open loops, and evidence across topics.' })],
+          [t({ zh: '证据引用', en: 'Evidence grounding' }), '15%', t({ zh: '关键结论是否引用正确 event/resource id，是否区分 fact 和 inference。', en: 'Whether key claims cite the correct event/resource IDs and distinguish facts from inferences.' })],
+          [t({ zh: 'Token usage', en: 'Token usage' }), '20%', t({ zh: '相比最近窗口、普通摘要、简单 RAG baseline，是否用更少上下文获得更好结果。', en: 'Whether it beats recent-window, narrative-summary, and simple-RAG baselines with less context.' })],
+          [t({ zh: '状态设计', en: 'State design' }), '15%', t({ zh: 'session state 是否结构清晰，可机器读取，可被后续 agent 继续使用。', en: 'Whether session state is clear, machine-readable, and reusable by later agents.' })],
+          [t({ zh: 'Web 产品质量', en: 'Web product quality' }), '10%', t({ zh: '状态是否可见、可理解、可检查，页面是否能让用户想用。', en: 'Whether state is visible, understandable, inspectable, and usable as a product.' })],
+          [t({ zh: '实现横评', en: 'Implementation review' }), '5%', t({ zh: '用 LLM 和人工共同比较 schema、routing、prefix policy、取舍和可复现性。', en: 'Human and LLM-assisted review of schema, routing, prefix policy, trade-offs, and reproducibility.' })],
         ]}
       />
 
