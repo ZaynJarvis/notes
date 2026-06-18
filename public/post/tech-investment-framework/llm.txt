@@ -1,0 +1,126 @@
+# 科技行业全链路投资分析框架
+
+核心观点：科技股分析没有可以直接抄的模板，但可以复用流程。本框架把通用研究法（业务-财务-估值-推荐）和大宗商品的四维投资体系（宏观周期-品类矩阵-短期时机-公司质量）迁移到科技/Fintech 行业，形成八步可复用 Checklist。
+
+## 八步一页版
+
+1. 宏观与科技周期定位：判断 AI/AIGC 周期阶段、利率路径、监管方向、资本流向。输出 Bullish/Neutral/Cautious 判断，决定整体仓位上限。
+2. 子行业 2×2 分类：X 轴=基本面需求强弱，Y 轴=宏观关联 vs 行业专有。落到不同象限匹配不同持仓策略。
+3. 商业模式拆解：ROE 驱动类型、护城河来源、收入结构、单元经济（SaaS 看 NRR/LTV/CAC；平台看 MAU/ARPU）。
+4. 财务建模：三表清洗时剥离 SBC；关注 FCF Conversion 和 ROIC vs WACC；SaaS 看 Rule of 40。
+5. 成长预测：按业务类型选择收入驱动因子；构建 Bull/Base/Bear 三情景及关键假设差异点。
+6. 估值工具组合：EV/Rev → EV/EBITDA → FCF Yield → DCF 逐层验证；Comps 选同子行业；DCF 必须做 WACC 和终值敏感性。
+7. 催化剂地图：未来 3-6 个月的产品发布、财报、监管事件、资本动作清单。
+8. 风险矩阵与对冲：估值/竞争/执行/监管四类风险；列明"论点失效条件"（任意两个同时发生触发下修）；配套对冲工具。
+
+## Step 01 — 宏观与科技周期定位
+
+- 技术范式：AI/AIGC 处于基础设施建设期、应用扩散期还是过热泡沫期。参考 TFP/PPF 逻辑：新技术采用期增长真实，成熟期出现 overcapacity。
+- 利率路径：高利率压缩高倍数成长股估值；降息周期打开重估空间。判断当前 terminal rate 预期与 FOMC 节点边际影响。
+- 监管周期：反垄断、数据隐私、AI 监管、加密政策——哪些收紧、哪些放开。
+- 资本流向：PE/VC 退出节奏、IPO 窗口、VIX 水平、风格轮动、ARKK 等科技 beta 情绪指标。
+
+输出整体科技行业 Bullish/Neutral/Cautious 判断，设定仓位规模和选股难度基准。
+
+## Step 02 — 子行业 2×2 分类
+
+- Q1 结构成长 × 宏观关联：云计算、AI 算力（NVDA/MSFT/AMZN）。长期持有，降息加仓，估值稍贵可接受。
+- Q2 周期 × 宏观关联：消费电子、PC、广告科技。做波段，跟政策节点。
+- Q3 结构成长 × 行业专有：垂直 SaaS（医疗、法律）、半导体设备。深入行业需求链，高护城河持有。
+- Q4 周期 × 行业专有：游戏、加密基础设施、部分 Fintech。重跟踪行业需求信号，波段操作。
+
+## Step 03 — 商业模式拆解
+
+核心问题：赚什么钱、护城河是否真实、增长是否可持续。
+
+ROE 驱动：
+- 高利润率驱动（Microsoft、Adobe）：看毛利和 Operating Margin 扩张路径，定价权持续性。
+- 高资产周转率驱动（Amazon AWS）：看收入/资产比，规模效应下的边际利润改善。
+- 杠杆驱动：科技行业少见，需谨慎评估周期下行偿债能力。
+
+护城河类型：
+- 网络效应（Meta、Uber）。
+- 转换成本（Salesforce、SAP）。
+- 规模效应（Amazon、TSMC）。
+- 品牌 + 数据飞轮（Google、Apple）。
+- 监管牌照（Robinhood、Coinbase）。
+- 技术专利 / R&D（Qualcomm、ASML）。
+
+单元经济：
+- SaaS：NRR > 120%、LTV/CAC > 3x、Churn < 5%/yr。
+- 平台：GMV × Take Rate、MAU、ARPU。Take Rate 稳定或提升，ARPU YoY 增长。
+- 硬件 + 服务：设备出货量 × 服务 ARPU、attach rate。服务收入占比持续提升（Apple 模式）。
+- AI / 基础设施：GPU 出货量 × ASP、数据中心 Capex 大盘份额。份额稳定 + ASP 不受压。
+
+## Step 04 — 财务建模
+
+三表清洗要点：
+- IS：剥离 SBC（股权激励是真实成本，non-GAAP 会高估利润）；识别一次性项目。
+- BS：递延收入是现金流正信号；商誉减值风险（并购密集型）；净现金 vs 净债务。
+- CFS：FCF = Operating CF − Capex。SaaS Capex 轻；芯片/云基础设施 Capex 重，区分维护性与增长性 Capex。
+
+核心指标矩阵：
+- 盈利质量：GAAP Operating Margin、Adj. EBITDA Margin、NOPAT Margin。SaaS 目标 Adj. EBITDA > 20%；Rule of 40 = Revenue Growth% + FCF Margin% ≥ 40。
+- 效率：Revenue/Employee > $500K、Capital Turnover。
+- 资本回报：ROIC > WACC（通常 > 10-12%）、ROACE、ROE。
+- 现金质量：FCF Conversion（NI → FCF），SaaS 通常 > 80%；优质公司 > 100%。
+- 杠杆：Net Gearing = (Debt − Cash) / Equity。多数科技公司 net cash，净杠杆为负是健康信号。
+- SBC 警觉：SBC/Revenue > 15-20% 是危险信号，稀释真实回报。
+
+Rule of 40 是 SaaS 健康指标，但对成熟科技公司（AAPL、MSFT）应看绝对 FCF 和 ROIC，不要硬套。
+
+## Step 05 — 成长预测与情景建模
+
+收入预测驱动（按业务类型）：
+- SaaS：用户数 × 每用户 ARR，体现 expansion revenue 和 churn 净影响。
+- 平台：MAU × ARPU 或 GMV × Take Rate，关注货币化效率趋势。
+- 半导体：产能利用率 × ASP × 市场份额，预判产能扩张节奏。
+- AI 基础设施：数据中心支出大盘规模 × 市场份额，参考超大云厂商 Capex 指引。
+
+三情景框架：
+- Bull：营收 CAGR 25-35%，持续扩张到 40%+ Adj. EBITDA。关键假设：产品 upsell 成功、新市场渗透、AI 驱动需求超预期。
+- Base：营收 CAGR 15-20%，稳定扩张，Rule of 40 达标。关键假设：主业稳定、新产品贡献温和、宏观无重大冲击。
+- Bear：营收 CAGR 5-8%，压缩，FCF Margin 下行。关键假设：宏观放缓、竞争加剧、监管、客户 churn 上升。
+
+## Step 06 — 估值工具组合
+
+- EV/Revenue：高增早期、尚未盈利。需结合毛利率。
+- EV/Gross Profit：毛利率差异大时（SaaS vs 硬件）。更公平的跨业务比较基础。
+- EV/EBITDA：已规模盈利的科技公司。最常用；注意 Adj. EBITDA 是否剔除 SBC。
+- P/E (GAAP)：成熟盈利公司。SBC 高的公司会低估真实盈利成本。
+- FCF Yield：成熟科技（AAPL、MSFT）。FCF/Market Cap > 4-5% 相对安全。
+- DCF：长期内在价值锚定。对 WACC 和 terminal growth rate 极度敏感，必须做敏感性分析。
+- PEG = P/E ÷ 增长率：PEG < 1 一般偏便宜。
+
+Comps 选择：同一子行业内比较；注意各公司 NTM 预期来源；历史估值区间（均值 ± 1SD）提供估值锚。
+
+## Step 07 — 催化剂与短期时机
+
+- 产品发布：WWDC、Build、Google I/O、AWS re:Invent。常提前半年埋伏。
+- 财报 Beat & Raise：季度 EPS/Revenue beat 同时上调全年指引最强；miss & lower 触发多重压缩。
+- 大客户/政府合同：JEDI 等大型政府合同、AI 大模型厂商合作披露、超大 MSA 签约。
+- 监管/诉讼：反垄断诉讼判决、数据隐私执法、AI 监管框架落地、加密或 Fintech 牌照政策。
+- 指数/调仓：S&P 500 纳入；季度末 ETF 再平衡。
+- 资本事件：超预期回购授权、战略性并购宣布或取消、创始人/CEO 变动。
+
+## Step 08 — 风险矩阵与对冲
+
+科技监管面快速变宽：PFOF、加密资产、event contracts、AI 工具、私募分发——任何新规都可能短期压缩特定子行业估值。需要列出"论点失效条件"。
+
+- 估值风险（HIGH）：高倍数 + 利率上升 = 多重压缩。对冲：配置低估值/盈利型科技；限制高 P/S 仓位。
+- 竞争风险（MEDIUM）：颠覆性竞争者出现、护城河蚕食。对冲：跟踪市场份额、客户 NRR 趋势。
+- 执行风险（MEDIUM）：产品 miss、增长 miss、管理层变动。对冲：季报后复盘 KPI；设置止损纪律。
+- 监管/宏观风险（HIGH）：反垄断、AI 监管、降息节奏变化。对冲：行业内配置分散；TLT、VIX 等宏观对冲工具。
+
+## 框架来源
+
+- Step 01-02 宏观 + 矩阵：四维投资框架 cycles/2026 outlook、two dimensions 章节。
+- Step 03 商业模式：通用研究法第 1 小时部分。
+- Step 04 财务建模：通用研究法第 2 小时部分。
+- Step 05-06 预测 + 估值：通用研究法 + CFA Equity Valuation Applications and Processes 2026。
+- Step 07 催化剂：四维投资框架 short term timing 章节。
+- Step 08 风险：通用研究法 + CFA Standard V(A) Diligence + CFA Standard V(B) Client Communication。
+
+## 最后的压缩
+
+框架不是用来证明你研究过，而是用来确保下一次看新标的时不会漏掉关键判断点。每个新科技股研究开始前，对照八步 Checklist 跑一遍。Step 1-2 决定整体方向，Step 3-4 是基本面真伪检验，Step 5-6 给出估值锚，Step 7-8 决定操作节奏。任何一步模糊，对应的投资判断就该往保守方向调。
