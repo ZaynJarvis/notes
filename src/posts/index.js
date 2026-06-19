@@ -1,4 +1,5 @@
 import { registerPost } from '../blog-components.jsx';
+import howtoUseZouk from './howto-use-zouk/index.jsx';
 import aiCapabilityNotes from './ai-capability-notes/index.jsx';
 import aiAgentHackathonProblems from './ai-agent-hackathon-problems/index.jsx';
 import beyondAppendOnlySessions from './beyond-append-only-sessions/index.jsx';
@@ -9,6 +10,7 @@ import runtimeStateModels from './runtime-state-models/index.jsx';
 import techInvestmentFramework from './tech-investment-framework/index.jsx';
 
 [
+  howtoUseZouk,
   techInvestmentFramework,
   beyondAppendOnlySessions,
   aiAgentHackathonProblems,
