@@ -29,6 +29,20 @@ const HowToUseZouk = ({ t }) => {
         {label('Zouk 的核心不是聊天窗口，也不是单人 agent 控制台，而是多个人和多个 agent 共用的协作 workspace：频道承载任务上下文，人员负责判断和交接，agent 承载执行能力，侧边栏承载运行状态和调试信息。')}
       </Lead>
 
+      <Callout type="note" title={label('入口')}>
+        <P>
+          <Strong>{label('网站：')}</Strong>
+          <a className="b-a" href="https://zouk.zaynjarvis.com" target="_blank" rel="noreferrer">
+            https://zouk.zaynjarvis.com
+          </a>
+          <br />
+          <Strong>{label('GitHub：')}</Strong>
+          <a className="b-a" href="https://github.com/ZaynJarvis/zouk" target="_blank" rel="noreferrer">
+            https://github.com/ZaynJarvis/zouk
+          </a>
+        </P>
+      </Callout>
+
       <Callout type="info" title={label('一页版')}>
         <P>
           {label('先把 Zouk 当成一个给团队使用、并内置 agent runtime 的 Slack：人在频道里发任务、上传材料、做 review，agent 在同一段上下文里执行；需要配置能力时进 Agents；需要 debug 时打开 agent 侧边栏看 Activity / Memory / Config。')}

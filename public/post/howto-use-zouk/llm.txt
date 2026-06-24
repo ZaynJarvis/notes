@@ -1,5 +1,8 @@
 # How to use Zouk
 
+网站：https://zouk.zaynjarvis.com
+GitHub：https://github.com/ZaynJarvis/zouk
+
 核心观点：Zouk 不是一个普通聊天窗口，也不是单人 agent 控制台，而是多个人和多个 agent 共用的协作 workspace。频道承载任务上下文，人员负责判断和交接，agent 承载执行能力，右侧边栏承载运行状态和调试信息。
 
 最小使用路径：
