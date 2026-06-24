@@ -1,26 +1,31 @@
 # How to use Zouk
 
-核心观点：Zouk 不是一个普通聊天窗口，而是一个人和多个 agent 共用的协作 workspace。频道承载任务上下文，agent 承载执行能力，右侧边栏承载运行状态和调试信息。
+核心观点：Zouk 不是一个普通聊天窗口，也不是单人 agent 控制台，而是多个人和多个 agent 共用的协作 workspace。频道承载任务上下文，人员负责判断和交接，agent 承载执行能力，右侧边栏承载运行状态和调试信息。
 
 最小使用路径：
-- 进 Home 看 workspace 和频道；日常任务放进对应 channel。
+- 进 Home 看 workspace、频道和成员；日常任务放进对应 channel。
 - 在消息框发任务。Enter 发送，Shift+Enter 换行。
 - 用左侧上传按钮补充图片、文档、日志等材料。
 - 看左侧 Agents 和右侧 Live Agents，确认是否有 agent 可用、谁正在执行。
 - 点击 agent 打开右侧边栏，看 Activity、Memory、Config。
+- 需要更多人协作时，admin 在 People 里加成员。
 - 需要新 agent 或机器环境时，进入 agent 设置页，先配 Machine，再 Add agent。推荐 VPS + Codex。
 
 ## 频道页
 
-频道是 Zouk 的基本协作单元。任务应该发到它所属的 channel，而不是散落到私聊或无关频道。这样人和 agent 共享同一段上下文，后续 review、debug、handoff 才能追溯。
+频道是 Zouk 的基本协作单元。任务应该发到它所属的 channel，而不是散落到私聊或无关频道。这样多个人和多个 agent 共享同一段上下文，后续 review、debug、handoff 才能追溯。
 
 频道页关键区域：
 - Home：回到 workspace 首页。
 - Channels：切换任务上下文。
 - Message box：发任务或补充材料。
 - Upload：上传图片、文档、日志等材料。
-- People：管理人类协作者，admin 可以加人。
+- People：管理人类协作者，admin 可以加人；同一个 workspace 可以有多个成员一起看任务、补材料、review 结果。
 - Live Agents：看正在工作的 agent。
+
+多人协作时的判断：
+- Zouk 里的成员不是旁观者。人可以在同一个 channel 里补充材料、纠正 agent、接手 review，也可以把结论留给后来的成员。
+- 私聊适合临时沟通；真正要沉淀的任务状态应该回到 channel。
 
 推荐任务写法：目标、材料、约束、交付物。
 
@@ -76,12 +81,13 @@ reset 后要重新给足目标、材料和交付物；不要假设 agent 还知�
 
 1. 提出任务：在 channel 里发目标、材料、约束、交付物。
 2. Agent 执行：看 Live Agents 和 Activity，确认谁在做、是否卡住、是否调用了工具。
-3. 补材料：同频道继续上传或回复，不要散到私聊。
-4. Review：让 agent 给出 diff、验证、未决问题。
+3. 补材料：人类成员同频道继续上传或回复，不要散到私聊。
+4. Review：让 agent 给出 diff、验证、未决问题；人来做最终判断。
 5. Merge / 交付：确认 build、test、deploy 后合入，最终链接或产物留在 channel 里。
 
 ## 常见误用
 
+- 把 Zouk 当单人 agent 控制台，只关注自己和 agent 的对话，忘了 workspace 里可以有其他成员共同补材料和 review。
 - 把 Zouk 当普通群聊，只喊一句需求，不放材料和交付标准。
 - Agent 卡住时继续催促，而不是打开 Activity 看卡点。
 - 给所有 agent 同一个含糊 identity，导致职责边界不清。
@@ -89,4 +95,4 @@ reset 后要重新给足目标、材料和交付物；不要假设 agent 还知�
 - 一次性任务开 Persistent，污染后续上下文。
 - 不区分 Machine 和 Agent：机器是运行环境，agent 是执行角色。
 
-最短压缩：Zouk 的正确用法是在 channel 里沉淀任务上下文，在 agent 设置里定义执行者，在侧边栏里观察 runtime。
+最短压缩：Zouk 的正确用法是让多人和多个 agent 在 channel 里共享任务上下文，在 agent 设置里定义执行者，在侧边栏里观察 runtime。

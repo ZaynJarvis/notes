@@ -26,22 +26,22 @@ const HowToUseZouk = ({ t }) => {
   return (
     <Article>
       <Lead>
-        {label('Zouk 的核心不是聊天窗口，而是一个人和多个 agent 共用的协作 workspace：频道承载任务上下文，agent 承载执行能力，侧边栏承载运行状态和调试信息。')}
+        {label('Zouk 的核心不是聊天窗口，也不是单人 agent 控制台，而是多个人和多个 agent 共用的协作 workspace：频道承载任务上下文，人员负责判断和交接，agent 承载执行能力，侧边栏承载运行状态和调试信息。')}
       </Lead>
 
       <Callout type="info" title={label('一页版')}>
         <P>
-          {label('先把 Zouk 当成一个带 agent runtime 的 Slack：在频道里发任务、上传材料、观察 active agent；需要配置能力时进 Agents；需要 debug 时打开 agent 侧边栏看 Activity / Memory / Config。')}
+          {label('先把 Zouk 当成一个给团队使用、并内置 agent runtime 的 Slack：人在频道里发任务、上传材料、做 review，agent 在同一段上下文里执行；需要配置能力时进 Agents；需要 debug 时打开 agent 侧边栏看 Activity / Memory / Config。')}
         </P>
       </Callout>
 
       <H2>{label('最小使用路径')}</H2>
       <Ol>
-        <Li>{label('进 Home 看 workspace 和频道。日常任务直接进对应 channel，例如 usage。')}</Li>
+        <Li>{label('进 Home 看 workspace、频道和成员。日常任务直接进对应 channel，例如 usage。')}</Li>
         <Li>{label('在消息框发任务。Enter 发送，Shift+Enter 换行；左侧回形针可以上传文件。')}</Li>
         <Li>{label('需要 agent 工作时，确认左侧 Agents 里有可用 agent；右侧 Live Agents 可以看当前正在干活的 agent。')}</Li>
         <Li>{label('点击 agent 头像或 agent 行，打开右侧边栏看 Activity、Memory、Config。Activity 主要用于 debug。')}</Li>
-        <Li>{label('需要新 agent 或机器环境时，进入 agent 设置页，先配 Machine，再 Add agent。推荐 VPS + Codex。')}</Li>
+        <Li>{label('需要更多人协作时，admin 在 People 里加成员；需要新 agent 或机器环境时，进入 agent 设置页，先配 Machine，再 Add agent。推荐 VPS + Codex。')}</Li>
       </Ol>
 
       <Figure
@@ -54,7 +54,7 @@ const HowToUseZouk = ({ t }) => {
 
       <H2>{label('1. 频道页：把任务放进正确上下文')}</H2>
       <P>
-        {label('频道是 Zouk 的基本协作单元。一个任务应该发到它所属的 channel，而不是私聊某个 agent。这样人和 agent 都能共享同一段上下文，后续 review、debug、handoff 才有地方发生。')}
+        {label('频道是 Zouk 的基本协作单元。一个任务应该发到它所属的 channel，而不是私聊某个人或某个 agent。这样多个人和多个 agent 都能共享同一段上下文，后续 review、debug、handoff 才有地方发生。')}
       </P>
       <Table
         headers={[label('区域'), label('用途'), label('注意')]}
@@ -63,10 +63,16 @@ const HowToUseZouk = ({ t }) => {
           [label('Channels'), label('切换任务上下文'), label('任务、材料、结论都尽量留在同一频道里。')],
           [label('Message box'), label('发任务或补充材料'), label('Enter 发送，Shift+Enter 换行。')],
           [label('Upload'), label('上传图片、文档、日志等材料'), label('材料要和任务同消息或同线程放在一起，减少 agent 猜测。')],
-          [label('People'), label('管理人类协作者'), label('admin 可以加人。')],
+          [label('People'), label('管理人类协作者'), label('admin 可以加人；同一个 workspace 可以有多个成员一起看任务、补材料、review 结果。')],
           [label('Live Agents'), label('看正在工作的 agent'), label('用于判断当前有没有 agent 在处理任务。')],
         ]}
       />
+
+      <Callout type="note" title={label('多人协作时的判断')}>
+        <P>
+          {label('Zouk 里的成员不是旁观者。人可以在同一个 channel 里补充材料、纠正 agent、接手 review，也可以把结论留给后来的成员。私聊适合临时沟通；真正要沉淀的任务状态应该回到 channel。')}
+        </P>
+      </Callout>
 
       <H3>{label('推荐的任务写法')}</H3>
       <P>
@@ -146,16 +152,17 @@ const HowToUseZouk = ({ t }) => {
       <Table
         headers={[label('阶段'), label('动作'), label('判断标准')]}
         rows={[
-          [label('提出任务'), label('在 channel 里发目标 + 材料 + 约束 + 交付物'), label('别人不问你也能知道要做什么。')],
+          [label('提出任务'), label('在 channel 里发目标 + 材料 + 约束 + 交付物'), label('人和 agent 不问你也能知道要做什么。')],
           [label('Agent 执行'), label('看 Live Agents / Activity'), label('知道谁在做、是否卡住、是否真的调用了工具。')],
-          [label('补材料'), label('同频道继续上传或回复'), label('材料不会散到私聊或别的 channel。')],
-          [label('Review'), label('让 agent 给出 diff、验证、未决问题'), label('能判断是否可 merge，而不是只看结果好不好看。')],
+          [label('补材料'), label('人类成员同频道继续上传或回复'), label('材料不会散到私聊或别的 channel。')],
+          [label('Review'), label('让 agent 给出 diff、验证、未决问题；人来做最终判断'), label('能判断是否可 merge，而不是只看结果好不好看。')],
           [label('Merge / 交付'), label('确认 build / test / deploy 后合入'), label('最终链接或产物在 channel 里可追溯。')],
         ]}
       />
 
       <H2>{label('常见误用')}</H2>
       <Ul>
+        <Li>{label('把 Zouk 当单人 agent 控制台，只关注自己和 agent 的对话，忘了 workspace 里可以有其他成员共同补材料和 review。')}</Li>
         <Li>{label('把 Zouk 当普通群聊，只在频道里喊一句需求，但不放材料和交付标准。')}</Li>
         <Li>{label('Agent 卡住时继续发“快点”，而不是打开 Activity 看它卡在哪一步。')}</Li>
         <Li>{label('给所有 agent 同一个含糊 identity，导致职责边界不清。')}</Li>
@@ -166,7 +173,7 @@ const HowToUseZouk = ({ t }) => {
 
       <H2>{label('最短压缩')}</H2>
       <P>
-        <Strong>{label('Zouk 的正确用法：在 channel 里沉淀任务上下文，在 agent 设置里定义执行者，在侧边栏里观察 runtime。')}</Strong>
+        <Strong>{label('Zouk 的正确用法：让多人和多个 agent 在 channel 里共享任务上下文，在 agent 设置里定义执行者，在侧边栏里观察 runtime。')}</Strong>
       </P>
     </Article>
   );
@@ -177,7 +184,7 @@ export default {
   Component: HowToUseZouk,
   meta: {
     title: { zh: 'How to use Zouk' },
-    description: { zh: '基于 Zouk 三张界面标注图整理的最小使用手册：频道、消息、上传、agent 设置、Activity / Memory / Config 和 reset session。' },
+    description: { zh: '基于 Zouk 三张界面标注图整理的最小使用手册：多人 workspace、频道、消息、上传、agent 设置、Activity / Memory / Config 和 reset session。' },
     cover,
     publishedAt: '2026-06-19',
     readingTime: { zh: 6 },
