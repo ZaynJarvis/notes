@@ -1,0 +1,48 @@
+# Fable 5 到底强在哪，以及我打算怎么用它
+
+核心观点：Claude Fable 5 的真正优势不是某一条榜单分数，而是一整类工作——长程、跨仓库、需要连续几小时自主推进的 agentic 任务。任务越长越复杂，它对 Opus 4.8 和 GPT-5.5 的领先越大。但它不是全能：真实世界视觉感知、超长上下文检索、网页浏览、安全编码上它明显吃亏。它单价是 Opus 4.8 的两倍（$10/$50 vs $5/$25 每百万 token；GPT-5.5 为 $5/$30），所以只有任务够难够长、领先能盖过差价时用它才划算。
+
+## 五个已验证的差距
+
+1. 前沿编码与跨仓库 agentic 工作（最大、最可复现）。SWE-Bench Pro：Fable 80.3% vs Opus 69.2% vs GPT-5.5 58.6%。FrontierCode Diamond（最难 50 题）：29.3% vs 13.4% vs 5.7%（2.19× Opus，5.1× GPT）。CursorBench：Fable 开 Low 档（64.2%、$5.70）已压过 Opus 开 Max 档（63.8%、$7.59）。Cognition FrontierCode Extended：Fable 中档 57.0 打赢 Opus 高档 48.8、GPT 高档 44.8。Stripe 说 Fable 一天完成 5000 万行 Ruby 仓库迁移（单一客户轶事，未独立复现，只说明能力天花板）。
+
+2. 长程 agentic 推理与多步自主。GDPval-AA 知识工作 Elo：1932 vs 1890 vs 1769（对 GPT 领先 163 Elo，约七成偏好胜率）。Humanity's Last Exam（带工具）：64.5% vs 57.9% vs 52.2%。OSWorld-Verified：85.0% vs 83.4% vs 78.7%。Artificial Analysis 智能指数第 1（64.9）。注意：官方「越长越领先」原文限定「相对自家旧模型」，不是相对所有竞品——Agents' Last Exam 上 GPT-5.5 略高（24.0% vs 22.0%），BrowseComp 也是 GPT 赢。
+
+3. 结构化视觉推理（图表/文档/截图）。BenchLM 多模态：Fable 92.4 vs Opus 76.1（+16.3，两者最大单类目差）。仅靠原始截图打通 Pokémon FireRed（前代要地图和游戏状态脚手架）。但「视觉 SOTA」被夸大：Roboflow 真实世界视觉评测只排第 10（74.63%），计数只 3/10。结论：它擅长「对图像做推理」，不擅长「一般视觉感知」，计数/定位要配专用检测器。
+
+4. 专业领域推理。金融 Hebbia Benchmark 全场最高分；医疗 HealthBench 66.0% vs Opus 56.9% vs GPT 51.8%；前沿数学 FrontierMath Tier 4 88% vs GPT 约 75%（+13）；法律 Legal Agent 13.3% vs GPT 2.1%（倍数大但绝对值都很低）。IMC 交易分析只是定性说法。
+
+5. Token 效率与更少回合，但 2× 单价常抵消。CursorBench Low 用 token 约为 Opus Max 的四分之一，分还略高；表格任务每档快 25–30%。但每问题成本 SWE-Bench Pro：Fable $0.41 vs Opus $0.31 vs GPT $0.28。Kilo 同计划执行实验：两者都过 15/15，GPT $6.30，Fable $16.66。token 省下来常被单价吃回去，只有更高成功率省掉重试时才真省钱。
+
+## 使用范式（怎么用才吃得到差距）
+
+- 按复杂度路由：最难的 5–10%（全仓库迁移、多文件重构、复杂 issue）给 Fable 开 high，其余给 Opus 4.8。日常 agent 任务两者差不到 1 分。
+- 校准 effort：Fable 的 medium 常顶得上 Opus 的 xhigh；官方推荐默认从 high 起步，不是 xhigh。
+- 接文件持久记忆：官方《杀戮尖塔》测试里，同一套文件记忆对 Fable 的提升是 Opus 的 3 倍。用很多小的、按主题命名的文件存事实和教训，不存对话流水；长任务前先读、干活时随手写回。
+- 当编排者不当劳力：Fable 规划质量更高（Kilo 9.1 vs GPT 8.3）但执行打平。开 max 只做规划/拆解/综合/拍板，执行丢给 Sonnet，深推理子任务丢给 Opus，省 50–70% token。Cognition Devin Fusion 用 Fable + sidekick 省 35% 成本。
+- 给最少脚手架：删掉 Opus 时代的步骤流程、「CRITICAL: MUST」升级措辞、强制进度节奏、「不许开子代理」护栏、「解释推理」指令；只说目标和约束。
+- 放手跑长程：第一轮把完整 spec 交足，用异步 check-in 而非阻塞式盯着。
+- 视觉：Fable 做推理（VQA、文档抽取、截图转代码、读科学图），计数/空间/缺陷检测配微调检测器（如 RF-DETR）。
+- 超长上下文：50 万 token 以上检索用 GPT-5.5，多文档综合用 Fable。
+- 信自我纠错但外部再验：加一个全新上下文、看不到原始推理的验证子代理；并让 Fable「报告进度前逐条对照工具结果核实」。
+- 无人值守过夜任务：Fable 准确率更高但那是知识更多不是幻觉更少，Opus 校准过的谨慎可能更安全；Fable 会自信地宣布测试通过而其实没通过。
+
+## 诚实的边界
+
+不是全能 SOTA（真实视觉第 10；超长检索、BrowseComp、ARC-AGI-2 是 GPT 赢）；安全编码弱（Endor 200 题功能 59.8%、安全解出仅 19.0%）；贵一倍；过度修改失败模式（SWE-Bench Pro 失败中 38% 是主改对了又加错）；SWE-bench Verified 约 32% 补丁可能复现训练数据答案；强制 30 天数据留存；约 5%（独立测约 8–9%）会话回退 Opus，网络安全/生化/蒸馏话题几乎必被路由走。
+
+## 我的集成计划（按投入产出比）
+
+1. Hermes 默认模型换 Fable（当前默认 Opus 4.6，见 cli-config.yaml.example:11，纯配置；比 Opus 4.8 贵一倍，先 A/B）。金融是离我最近的杀手场景（Hebbia #1 + 自校验对上「带下行的可决策输出」）。
+2. Hermes 每日投资简报做成 skill + cron（现跑 gpt-5.5，换 Fable 双倍单价换更强金融推理；cron/scheduler.py 已有，新建 optional-skills/finance/daily-brief/SKILL.md）。
+3. OpenViking 拆语义/记忆两条路由：vlm_semantic 走便宜模型做文件摘要，vlm_memory 走 Fable 做 ExtractLoop/compressor_v3/trajectory。调用点 extract_loop.py:116、compressor_v3.py:127、trajectory_analyzer.py:186、rollout_executor.py:42。战略价值最高——接住 3× 记忆提升，收益外溢到每个用它做上下文的 Agent。
+4. swarm-eval 协调者从 Opus 换 Fable（worker 保持 Haiku）。改 analyzer/config.py:44 或用现成 --coordinator-model 做 A/B。
+5. LoopX dreaming 从关键词匹配升级为 Fable 洞察（dreaming.py，保留规则版兜底，纯建议低风险）。
+6. AgentMail 只把 money 类邮件走 Fable（agentmail.py codex_triage():914）。
+7. Zouk UI 加 Fable 选项（claude.ts:255-256 已透传 --model，守护进程零改动）。
+
+横切模式：便宜 worker + Fable 协调者应成为多 Agent 系统默认模板；语义 vs 记忆的路由拆分是单点杠杆最大的改动；rtk（已省 85.4% 输出 token）+ Fable 更少回合，净成本值得实测；约 5% 回退对我的活影响最小（都不碰网络安全/生化）。
+
+不值得上 Fable：评测 worker（Haiku 最优）、OpenViking 文件摘要（量太大）、tmux-journal 日常摘要（Haiku 够）、newtab 关键词抽取（牛刀杀鸡）、Orca 模型 UI 和 Zouk 非 Anthropic 驱动（作用不到）。
+
+一句话：Fable 5 不是「更好的 Opus」，而是一种「敢把更长更复杂的任务整包交出去」的模型。把它用在领先随难度扩大的地方，接上记忆、砍掉旧脚手架、放手跑；剩下的高频小活和它的短板交给更便宜或更合适的模型。
