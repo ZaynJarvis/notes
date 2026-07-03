@@ -1,4 +1,5 @@
 import { registerPost } from '../blog-components.jsx';
+import huashengSeoGeoPlaybook from './huasheng-seo-geo-playbook/index.jsx';
 import howtoUseZouk from './howto-use-zouk/index.jsx';
 import aiCapabilityNotes from './ai-capability-notes/index.jsx';
 import aiAgentHackathonProblems from './ai-agent-hackathon-problems/index.jsx';
@@ -10,6 +11,7 @@ import runtimeStateModels from './runtime-state-models/index.jsx';
 import techInvestmentFramework from './tech-investment-framework/index.jsx';
 
 [
+  huashengSeoGeoPlaybook,
   howtoUseZouk,
   techInvestmentFramework,
   beyondAppendOnlySessions,

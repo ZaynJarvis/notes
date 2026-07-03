@@ -1,0 +1,105 @@
+# hua-sheng.org SEO/GEO 优化实战方法论
+
+核心观点：对 hua-sheng.org 做了一轮完整的 SEO + GEO overhaul，31 项 backlog 全部落地。本文沉淀可迁移的方法论和踩过的坑。
+
+相关报告：https://notes.zaynjarvis.com/#/post/huasheng-seo-geo-report
+
+## 先查部署，再查代码
+
+审计第一天发现的最严重问题不是代码缺陷，而是生产环境跑着三周前的旧构建。仓库里所有 GEO 资产（answer pages、keyword hubs、entity profile、预渲染内容）线上全部 404。代码 push 到了 GitHub，但 Cloudflare Pages 项目根本没连 Git 集成，部署靠手动，没人发现漂移。
+
+规则：任何 SEO/GEO 工作开工前，先 diff 线上 HTML 和仓库 HTML（对比版本号/构建戳）。优化没部署等于没优化。
+
+修复手段：
+- 接通 GitHub → Cloudflare Pages 自动部署，push main 即上线。
+- 写 smoke-check 脚本：HEAD 请求 10 个关键 URL，非 2xx 即 exit 1，每次部署后必跑。
+- 版本戳从构建日期自动派生（?v=huasheng-site-YYYYMMDD-*），肉眼即可判断线上新旧。
+
+## 生成器中心化架构
+
+几乎所有 SEO/GEO 表面都由两个脚本生成，手改生成物一定会被下次运行覆盖：
+- update-seo-assets.mjs：SPA 页面 head 元数据、robots.txt、sitemap.xml、llms.txt
+- update-geo-assets.mjs：answer pages、keyword hubs、entity-profile.jsonld、llms-full.txt、_redirects、_headers、每页预渲染内容、blog 页 head 注入和 footer 年份
+
+SPA 预渲染：每个路由的 #root 里预渲染了完整静态内容，不执行 JS 的 AI 爬虫能直接读到全文。浏览器端 createRoot().render() 替换之。不要用 hydrateRoot——预渲染是简化结构，强行 hydrate 会全量 mismatch。用构建期脚本比对每路由预渲染 h1 与 content.js 做校验即可。
+
+共享 chrome：siteHeaderHtml() / siteFooterHtml()，hubs、answers、blog 统一调用。改一处全站生效。
+
+幂等性铁律：跑完两个生成器和编译后，git status 必须 clean。同日重跑不产生 diff。所有 JSON-LD 用 Node 解析一遍确认合法。
+
+## 设计一致性是产品问题
+
+SEO landing page（keyword hubs）最初用独立轻量模板，加进主导航后视觉断层明显。凡是会出现在导航里的页面，必须共享主站设计系统。hub.css 完全基于 styles.css 的 theme token（var(--bg)、--ink、--accent、--warm)），切换 body 的 data-theme 即整体适配。
+
+主题的 source of truth 在代码不在注释。styles.css 注释说默认暗色，实际 app.jsx 硬编码亮色主题。中文页的 data-lang 必须是 "cn" 不是 "zh"（styles.css 选择器约定）。
+
+全局 CSS 的裸元素规则（如 section { padding: 96px 0 }）会渗进新模板，子模块 CSS 要显式覆盖。
+
+## GEO 具体战术
+
+GEO（Generative Engine Optimization）的目标是让 AI 答案引擎在回答相关问题时引用你的站点。核心原则：让事实容易被找到、容易被引用、并且自洽。
+
+llms.txt 用链接列表格式：按 llmstxt.org 规范，是 markdown 链接列表（- [Label](url): 描述），不是纯文本行。另生成 llms-full.txt（全文语料）。_headers 给两者配 text/plain 和 CORS。
+
+可深链的问答锚点：FAQ 答案全部带 id="q-<slug>"，slug 从英文问题派生，中英文共用同一个锚点。FAQPage JSON-LD 的每个 Question 带 #q- fragment URL，AI 引擎可以精确引用到某条问答。
+
+表格是 AI 最爱抽取的格式：每个 keyword hub 至少放一张语义化 spec table，用真实数据转成表格。
+
+事实一致性 > 事实数量：审计抓到多组矛盾数据（厂房面积、年限、联系方式）。矛盾事实直接损害 AI 引用置信度。年限类数字全部计算：HS_YEARS = new Date().getFullYear() - 1989，静态页构建时同样计算并 stamp，永不过期。
+
+不造假：不加 fake aggregateRating、假评论、假坐标、假认证。
+
+用爬虫 UA 实测：curl -A "GPTBot/1.0" 实测线上页面，确认预渲染内容可见、没被 bot 管理拦截。
+
+注意：noindex 和跨页 canonical 不能同时用，信号矛盾。要去索引就 noindex + 自引 canonical。
+
+## Cloudflare Pages 特有经验
+
+域名直连 Pages，不要 Worker 代理。原架构 apex 由 Worker fetch pages.dev 再转发，导致 Worker 修复不随 Pages 部署生效。正解：Pages 项目加 custom domain（DNS 指向后自动激活），删 apex Worker route。Worker 只留 www/* 做 www → apex 的 301 跳转（Pages _redirects 不支持按 host 匹配）。
+
+pages.dev 原站去索引：_headers 支持 host-scoped 规则，给 https://<project>.pages.dev/* 和 https://:version.<project>.pages.dev/* 下发 X-Robots-Tag: noindex。
+
+_redirects 要点：规则优先于静态文件；语言根跳转用 301 不是 302；删除旧目录时必须补 301。
+
+缓存策略：HTML 用 max-age=0, must-revalidate；带 ?v= 版本戳的静态资产用 max-age=31536000, immutable。
+
+## 多 Agent 工作流编排
+
+四阶段结构：
+
+阶段一 审计：并行 7 个 lens（metadata / structured-data / crawlability / geo-answer-engines / live-site / content-keywords / technical），read-only，每个输出 schema 化 findings。
+
+阶段二 合成：单 Agent，怀疑主义。逐条对 repo 和线上复核证据，去重合并。62 条砍到 31 条可执行 backlog + 3 条明确 dropped。关键字段：lane（按文件冲突域划分）+ 自包含 action + 可执行 verify。
+
+阶段三 实现：lane 内串行、lane 间并行。generator lane 7 个批次严格串行（共享 scripts/*.mjs，并行必冲突）。每批次一个 commit 做 checkpoint，Agent 挂了 reset 未提交残渣即可重跑。
+
+阶段四 验证：3 个独立 verifier 并行 + fix loop。build/幂等性、逐项 acceptance、对抗性 diff review。verifier 交叉核对实现者的自述，不信任声明。
+
+编排原则：
+- lane 划分按"谁写哪些文件"，不是按主题。这是并行安全的唯一依据。
+- 实现 Agent 的报告必须 honest：done 仅当本地 verify 通过，skipped 要给理由。
+- checkpoint commit 让失败批次重跑成本约等于零。
+- 漏斗必须有丢弃环节：62 条审计发现 → 31 条可执行项。
+
+## Checklist
+
+每次改动后（本地）：
+- 运行 update-seo-assets.mjs 和 update-geo-assets.mjs
+- 编译 SPA
+- 运行 check-prerender-parity.mjs
+- git status 必须 clean
+
+每次部署后（线上）：
+- 运行 smoke-check.mjs（10 个关键 URL 全 200）
+- 检查 immutable 缓存头
+- 用 GPTBot UA 验证爬虫可见性
+
+新增页面时：
+- 进 sitemap（生成器 pages[] 自动）+ hreflang 成对 + prerenderNav + llms.txt 链接列表
+- 有 FAQ 就带 #q- 锚点并同步进 FAQPage JSON-LD
+- 用共享 chrome（siteHeaderHtml / siteFooterHtml + hub.css）
+
+相关链接：
+- 站点：https://hua-sheng.org
+- 仓库：https://github.com/ZaynJarvis/hua-sheng-site
+- 执行报告：https://notes.zaynjarvis.com/#/post/huasheng-seo-geo-report
