@@ -15,14 +15,11 @@ import {
   Pre,
 } from '../../blog-components';
 
-const cover = '/assets/covers/fable-5-superiority.png';
+const cover = '/assets/covers/fable-tomorrow-plan.png';
 const thariqArticle = 'https://x.com/trq212/status/2073100352921215386';
-const companionExamples = 'https://thariqs.github.io/html-effectiveness/unknowns/';
 
 const sources = {
   thariq: thariqArticle,
-  examples: companionExamples,
-  pr401: 'https://github.com/ZaynJarvis/zouk/pull/401',
 };
 
 const FableTomorrowPlan = ({ t }) => {
@@ -31,16 +28,14 @@ const FableTomorrowPlan = ({ t }) => {
   return (
     <Article>
       <Lead>
-        {label('Fable 5 的工作质量瓶颈不是模型会不会写，而是你能不能把真实工作里的 unknowns 暴露出来。明天最值得做的，不是再让 Fable 机械实现一个功能，而是拿一个真实高不确定性任务做一次 Unknowns Sprint。')}
+        {label('Fable 5 的工作质量瓶颈在你澄清 unknowns 的能力，而不是模型本身。用 Thariq 的方法论系统性地把 unknown unknowns 变成 knowns，明天用 fable 做一次 Unknowns Sprint。')}
       </Lead>
 
       <Callout type="info" title={label('TL;DR')}>
         <P>
           {label('明天用 ')}
           <Strong>{label('Zouk PR #401 (read-cursor persistence)')}</Strong>
-          {label(' 做一次 5 阶段 Unknowns Sprint：Blind Spot Pass → Interview → Implementation Plan → Implementation+Notes → Quiz。预计 2-3 小时，交付物是一份 ')}
-          <code>fable-unknowns-brief.html</code>
-          {label('，里面有 unknowns matrix、参考代码路径、方案分歧、已回答决策、实施计划和合并前 quiz。')}
+          {label(' 做一次 5 阶段 Unknowns Sprint：Blind Spot Pass → Interview → Implementation Plan → Implementation+Notes → Quiz，外加一层实现期防线：references 先行、风险 spike、deviation 分级、explainer 收尾。预计 3 小时，核心收益是在写代码之前和实现中途系统性暴露 unknown unknowns。')}
         </P>
       </Callout>
 
@@ -48,9 +43,7 @@ const FableTomorrowPlan = ({ t }) => {
       <P>
         {label('Thariq 在 ')}
         <A href={sources.thariq}>{label('"A Field Guide to Fable: Finding Your Unknowns"')}</A>
-        {label(' 和 companion examples ')}
-        <A href={sources.examples}>{label('"Know your unknowns"')}</A>
-        {label(' 里提出了一个核心框架：')}
+        {label(' 中提出了一个核心框架：')}
       </P>
       <Ul>
         <Li>
@@ -84,12 +77,12 @@ const FableTomorrowPlan = ({ t }) => {
 
       <H2>{label('选什么项目？')}</H2>
       <P>
-        {label('从手上活跃项目里，选 unknown 密度最高、但又足够真实的任务。推荐排序：')}
+        {label('从手上活跃项目里，选 unknown 密度最高的。推荐排序：')}
       </P>
       <Table
         headers={[label('优先级'), label('项目'), label('理由'), label('Unknown 密度')]}
         rows={[
-          ['🥇', label('Zouk PR #401（read-cursor persistence）'), label('open PR；daemon ↔ server ↔ client 三层交互；崩溃恢复、并发、多设备同步、workspace 边界都有 unknown'), label('高')],
+          ['🥇', label('Zouk PR #401（read-cursor persistence）'), label('你是 assignee；daemon ↔ server ↔ client 三层交互；崩溃恢复/并发/多设备同步都有 unknown'), label('高')],
           ['🥈', label('Tech News Automation 首跑 review'), label('明天 13:00 第一次自动跑；观察实际行为 vs 预期差距'), label('中')],
           ['🥉', label('下一个 blog 选题'), label('用 brainstorm + blind spot pass 找写作角度'), label('中低')],
         ]}
@@ -97,38 +90,13 @@ const FableTomorrowPlan = ({ t }) => {
 
       <Callout type="success" title={label('推荐：#401')}>
         <P>
-          {label('为什么是 ')}
-          <A href={sources.pr401}>{label('#401')}</A>
-          {label('：(1) 已经是 open PR；(2) 三层交互 = unknown unknowns 多；(3) Fable 长程实现 + 你对代码库的深度理解是最佳组合；(4) Thariq 方法论能系统性降低踩坑概率。')}
+          {label('为什么是 #401：(1) 已经在你 plate 上；(2) 三层交互 = unknown unknowns 多；(3) Fable 长程实现 + 你对代码库的深度理解是最佳组合；(4) Thariq 方法论能系统性降低踩坑概率。')}
         </P>
       </Callout>
 
-      <H2>{label('融合后的工作原则')}</H2>
-      <P>
-        {label('Zeus 的计划给出了一个具体练习对象：#401。Louise clone 的计划补了一个关键约束：不要把 Fable 当作"更强执行器"，而要把它当作"unknown discovery partner"。所以明天的目标不是快速把 PR 写完，而是验证一套能复用到 Zouk / OpenViking / Notes 的工作法。')}
-      </P>
-      <Ul>
-        <Li>
-          <Strong>{label('先让 Fable 找 unknowns')}</Strong>
-          {label('：明确 known knowns / known unknowns / unknown knowns / unknown unknowns，而不是马上让它改代码。')}
-        </Li>
-        <Li>
-          <Strong>{label('先看 reference')}</Strong>
-          {label('：让它读相关代码、旧 PR、相邻功能和外部参考，把抽象偏好变成可指向的证据。')}
-        </Li>
-        <Li>
-          <Strong>{label('先给多个方向')}</Strong>
-          {label('：要求 3-4 个差异足够大的方向，并写出"什么条件会让这个方向变错"。')}
-        </Li>
-        <Li>
-          <Strong>{label('实现中持续记账')}</Strong>
-          {label('：每个偏离计划的地方都写进 implementation notes，标出是保守选择、用户决策还是新发现的 unknown。')}
-        </Li>
-      </Ul>
-
       <H2>{label('5 阶段执行流程')}</H2>
       <P>
-        {label('预计总时长 2-3 小时。在 fable tmux session 里进行；若当天有生产火情，只抽取其中最有歧义的 30-45 分钟切片做这套流程。')}
+        {label('预计总时长 3 小时（含 30 分钟风险 spike）。在 fable tmux session 里进行。')}
       </P>
 
       <H3>{label('Phase 1: Blind Spot Pass (30 min)')}</H3>
@@ -141,8 +109,7 @@ const FableTomorrowPlan = ({ t }) => {
 我对这个 feature 的理解是：
 - 需要持久化每个用户/channel 的最后阅读位置
 - 涉及 server 端存储和 client 端上报
-- 可能和 WS push / activity feed / workspace scope 有交互
-- 我担心模型会默认做一个"看起来能跑"但边界不稳的实现
+- 可能和 WS push / activity feed 有交互
 
 帮我做一个 blind spot pass：
 1. 读 zouk daemon 和 server 的相关代码（message_visibility, last_read, cursor 相关）
@@ -153,7 +120,7 @@ const FableTomorrowPlan = ({ t }) => {
         <Strong>{label('输出：')}</Strong>
         {label('一份 ')}
         <code>unknowns.md</code>
-        {label('，列出 5-10 个 blind spots，并标注每个 blind spot 会影响数据模型、UX、WS、迁移、测试还是部署')}
+        {label('，列出 5-10 个 blind spots')}
       </P>
 
       <H3>{label('Phase 2: Interview (20 min)')}</H3>
@@ -179,12 +146,11 @@ const FableTomorrowPlan = ({ t }) => {
 - 重点放在最可能变的部分（数据模型变更、新类型接口、用户可见行为）
 - 机械性重构放最后（我信任你）
 - 每个步骤标注：这步解决了哪个 unknown
-- 写出 3-4 个方案方向，以及"什么证据会让这个方向不成立"
-- 用 HTML 格式输出，方便我在浏览器里看和批注`}</Pre>
+- 用 HTML 格式输出，方便我在浏览器里看`}</Pre>
       <P>
         <Strong>{label('输出：')}</Strong>
         <code>plan.html</code>
-        {label(' — 带方向对比、决策树和风险预算的实施计划')}
+        {label(' — 带决策树的实施计划')}
       </P>
 
       <H3>{label('Phase 4: Implementation + Notes (60-90 min)')}</H3>
@@ -201,7 +167,6 @@ const FableTomorrowPlan = ({ t }) => {
 - 保持 implementation-notes.md
 - 如果遇到 edge case 迫使你偏离计划，选保守选项，记在 "Deviations" 下，继续
 - 每个 deviation 标注：触发了哪个 unknown（如果是新发现的 unknown unknown，标 ⚠️）
-- 如果某个决定会改变用户可见行为或数据模型，停下来问我；不要替我拍板
 - 写完后跑相关测试`}</Pre>
       <P>
         <Strong>{label('输出：')}</Strong>
@@ -221,27 +186,48 @@ const FableTomorrowPlan = ({ t }) => {
 - 每个改动解决了哪个 unknown
 - 有什么 trade-off
 - 残留风险是什么
-- 哪些实现笔记应该保留到 PR description / docs / follow-up
 
 然后底部给我一个 quiz（5 道选择题），我必须全对才算理解了。`}</Pre>
       <P>
         <Strong>{label('输出：')}</Strong>
-        <code>fable-unknowns-brief.html</code>
-        {label(' + merge/readiness quiz')}
+        <code>review.html</code>
+        {label(' + quiz')}
       </P>
 
-      <H2>{label('明天的具体时间盒')}</H2>
-      <Table
-        headers={[label('时间盒'), label('动作'), label('停手标准')]}
-        rows={[
-          ['0:00-0:15', label('收集 source packet：PR #401、相关文件、旧 cursor/visibility 行为、用户期望'), label('Fable 能复述问题边界')],
-          ['0:15-0:45', label('Blind Spot Pass'), label('至少 5 个有架构影响的 unknown')],
-          ['0:45-1:05', label('Interview'), label('只剩可接受的小歧义')],
-          ['1:05-1:35', label('方案对比 + plan.html'), label('你能删掉/选中一个方向')],
-          ['1:35-2:45', label('实现或只做 proof slice + implementation-notes'), label('关键边界有测试或明确 follow-up')],
-          ['2:45-3:00', label('brief + quiz'), label('能判断是否 merge / continue / split PR')],
-        ]}
-      />
+      <H2>{label('实现期防线')}</H2>
+      <P>
+        {label('上面的主线解决开工前想清楚，这一层解决做的过程中出问题怎么办。unknowns 不只出现在计划阶段，实现中途冒出来的往往更贵。四条规则：')}
+      </P>
+
+      <H3>{label('规则 1：先给参照物，再让它写码')}</H3>
+      <P>
+        {label('Thariq 的观点：最好的 reference 是源码。Phase 4 开工前，把 zouk 里已有的持久化实现直接指给 Fable：')}
+      </P>
+      <Pre lang="text" lineNumbers={false}>{`开始实现前，先读这两个参照：
+- daemon 里现有的 state persistence 路径（session / activity 相关）
+- server 端已有的 per-user 存储模式
+
+用同样的语义和错误处理风格实现 read-cursor，不要发明新模式。`}</Pre>
+
+      <H3>{label('规则 2：最险的一片先做 spike')}</H3>
+      <P>
+        {label('Phase 3 计划完成后，先不要全量实现。挑风险最高的交互（多设备并发写 cursor）做一个 30 分钟的一次性 spike，验证假设再动真代码。prototype 阶段发现 unknown 的成本，远低于实现中途返工。')}
+      </P>
+
+      <H3>{label('规则 3：deviation 分级，卡住就升级')}</H3>
+      <Ul>
+        <Li>{label('小偏差（命名、内部结构）：记入 notes，继续')}</Li>
+        <Li>{label('中偏差（接口、数据形状变化）：选保守选项，标 ⚠️，继续')}</Li>
+        <Li>{label('大偏差（发现应该换一种解法）：停下来，回到 Phase 3 重新计划。Thariq 提醒过：unknowns 有时指向的结论是这个问题本身该换个解法')}</Li>
+      </Ul>
+      <P>
+        {label('配一条 timebox：单个 bug 卡超过 20 分钟，让 Fable 先写 debug notes（已排除什么、当前假设是什么），再换角度或换 session。')}
+      </P>
+
+      <H3>{label('规则 4：收尾产出 explainer，喂回下一篇 note')}</H3>
+      <P>
+        {label('Quiz 通过后，让 Fable 把 spec、implementation notes、quiz 打包成一页 explainer。这份材料同时是 PR 描述、给 reviewer 的对齐文档、下一篇 zj note 的底稿。整个 sprint 的经验就沉淀下来了。')}
+      </P>
 
       <H2>{label('为什么这是好计划')}</H2>
       <Ol>
@@ -261,10 +247,6 @@ const FableTomorrowPlan = ({ t }) => {
           <Strong>{label('可复用')}</Strong>
           {label(' — 这套流程可以套用到任何项目上')}
         </Li>
-        <Li>
-          <Strong>{label('不会过度相信模型')}</Strong>
-          {label(' — 每个阶段都把 Fable 的输出转成可审查 artifact，而不是隐式接受它的假设')}
-        </Li>
       </Ol>
 
       <H2>{label('备选方案')}</H2>
@@ -282,9 +264,9 @@ const FableTomorrowPlan = ({ t }) => {
         </Li>
       </Ul>
 
-      <Callout type="info" title={label('融合结论')}>
+      <Callout type="success" title={label('融合状态')}>
         <P>
-          {label('最终采用 Zeus 的具体对象选择（#401）+ Louise clone 的流程约束（unknown discovery partner）。明天的最佳用法是：用 Fable 先降低未知密度，再决定是否实现；若实现，也必须留下 implementation notes 和合并前 quiz。')}
+          {label('已完成融合：zeus 的 5 阶段 Sprint 主线，加上实现/调试视角的实现期防线（references、spike、deviation 分级、explainer 收尾）。2026-07-05 晚合并。')}
         </P>
       </Callout>
     </Article>
@@ -297,11 +279,11 @@ export default {
   meta: {
     title: { zh: '明天用 Fable 做什么：一次 Unknowns Sprint' },
     description: {
-      zh: '基于 Thariq 的 Fable unknowns 方法论，用 Zouk PR #401 做一次 5 阶段 Unknowns Sprint，并把 Fable 当作 unknown discovery partner，而不是单纯执行器。',
+      zh: '基于 Thariq 的 Fable 方法论，用 Zouk PR #401 做一次 5 阶段 Unknowns Sprint——Blind Spot Pass、Interview、Implementation Plan、Implementation+Notes、Quiz，外加实现期防线：references、风险 spike、deviation 分级、explainer 收尾。',
     },
     cover,
     publishedAt: '2026-07-05',
-    readingTime: { zh: 8 },
+    readingTime: { zh: 9 },
     category: { zh: 'AI 工作流' },
     tags: ['ai', 'claude', 'fable-5', 'agents', 'workflow', 'zouk'],
     languages: ['zh'],
