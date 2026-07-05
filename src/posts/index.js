@@ -10,8 +10,10 @@ import huashengSeoGeoReport from './huasheng-seo-geo-report/index.jsx';
 import makeAGoal from './make-a-goal/index.jsx';
 import runtimeStateModels from './runtime-state-models/index.jsx';
 import techInvestmentFramework from './tech-investment-framework/index.jsx';
+import fableTomorrowPlan from './fable-tomorrow-plan/index.jsx';
 
 [
+  fableTomorrowPlan,
   fableSuperiority,
   huashengSeoGeoPlaybook,
   howtoUseZouk,
