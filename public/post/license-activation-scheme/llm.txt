@@ -1,0 +1,58 @@
+# 私有化 License 激活方案
+
+核心目标：私有化交付的 License 不追求绝对防破解，而是让盗版变成高成本、可检测、可止损、可追责。本文只聚焦 license 的激活交互流程，不讨论客户端拿到 license file 之后如何消费。
+
+## 结论（当前方案）
+
+方案 = 激活码 + 静态 Refresh Token + 内存 random instance-id 检测 + 短效签名 License。
+
+- activation_code 单次激活换一个静态 refresh token（RT，纯身份，不含授权信息）。
+- 每次刷新返回一张短效签名 License File（SLF，携带全量 entitlement），必要时顺延 RT 的 TTL，不做 RT 轮转。
+- 复制检测：agent 启动时在内存生成一个不落盘的 random instance-id，每次 refresh 带上；云端看到同一个 RT 出现多个并发且持续的 instance-id，判定证书复用，走「告警 → 确认 → 吊销」。
+
+## 威胁模型（两层）
+
+- Tier 1（无修改的复制）：复制/克隆整个运行系统（含 RT）——超量自部署、整环境克隆、取出并复用 RT。可检测（内存 instance-id 并发检测 + 频率）。这是本方案的目标。
+- Tier 2（改代码 / 伪造内部信任）：改 agent/服务、patch 掉校验、把 instance-id 固定住、伪造 agent 与业务服务的信任。纯软件不防，靠法务合同。
+
+## 设计前提（承重假设）
+
+1. 假设私有化验签服务与业务服务之间的信任通道不会被攻破，License 不在私有化环境内泄露。业务服务只接受本地 license agent 推送的 entitlement，不自己验签 bearer license file。
+2. license agent 集群内单例（HA 用 leader）。一个集群 = 一个活着的 agent = 一个 instance-id，内存 instance-id 才是干净的复制检测信号。
+失效条件：当签名 license 可被盗用（例如某业务服务改成自己验签），需评估 license 加密绑定集群公钥（key-binding）。
+
+## 方案演进路径（旧 → 新）
+
+1. 静态 License File：云端签发静态签名文件，客户端内置 public key 本地验签。最简单、完全离线；但续期要手动换文件、无法在线 revoke。
+2. Key 换 License File：部署时配长期 key，客户端拿 key 换 license file。在线续期方便；但 key 是长期 token，有效期内无法 revoke/缩权。
+3. Key 换 短效 License（SLF）：license file 改为短有效期（天级）的全量 entitlement 快照，周期性（+主动触发）刷新。支持提前 revoke、扩缩权、动态 entitlement、fail-close；但长期 key 泄露仍可被盗用。
+4. Activation Code 换 Refresh Token：一次性 activation code 首次 redeem 换 refresh token，之后用 RT 刷新拿 SLF。收窄集群外分发链路泄露，RT 只在集群内产生；但 RT 集群内泄露/克隆后难发现。
+5. （当前）静态 RT + 内存 instance-id 检测：补上「RT 泄露/克隆难发现」。内存 instance-id 抓克隆（克隆拿不到内存 id），比 deployment_id 干净；结构最简单，无轮转状态机/grace/变砖。代价是需要 agent 单例 + 重启/滚动升级的 overlap 容忍。
+
+## 关键洞察
+
+- 内存 instance-id 是承重的复制信号；fingerprint / deployment_id 只是可伪造的软信号，非承重。
+- authN / authZ 拆分：RT = 纯身份（长期），SLF = 全量 entitlement 快照（短期，签名）。就是 OAuth 的 refresh token + access token。
+- 短 SLF = 无状态全量 entitlement：每张自包含签名快照，变更/revoke/降权只需换下一张，客户端对 entitlement 无状态。
+- 静态 RT 可 revoke，不存在「永久泄露」：churn、账号到期、确认盗用都能服务端拒绝续期，一个 TTL 内 fail-close。
+- 核心不变量：一个 license = 一个 RT = 一个 live consumer。整环境克隆与复制 RT 都是在制造「第二个 consumer」，一个信号同时覆盖 anti-duplication 与 anti-extraction。
+- detection-first：不发现即停会误伤脆弱小客户，改为「告警 → 确认 → 吊销」，永不变砖。
+
+## 激活 / 恢复流程
+
+正常激活（首次）：云端签发 activation code（高熵、短有效期、绑定 customer/license、可 revoke、不可枚举）→ 单例/leader agent redeem → 云端校验（单次/未过期/未 revoke）→ mint 静态 RT + 首张 SLF + 记录 redeem 上下文 → code 作废 → agent 把 RT 入共享 Secret、内存生成 instance-id、起 refresh loop。
+
+恢复 / re-activation 两模式：A 恢复（RT 丢失，发新 code 平滑切换，避免 downtime）；B 吊销（确认盗用，发新 code 并立即吊销旧 RT）。两者都先 revoke 旧 code，收敛到一条 live 链。发新 code 是唯一的「轮转」入口，不做服务端静默轮转。
+
+激活环节的泄露信号：对已消费的 activation code 再次 redeem 返回明确错误并记为潜在外链泄露；小偷抢先 redeem 会让合法客户激活失败，把静默泄露变成响亮、可归因的冲突。
+
+## 协议细节要点
+
+- SLF payload 签名覆盖全量：license_id / customer_id / product_id / entitlement / lease_id / sequence / issued_at / not_before / expires_at；签名建议 Ed25519。
+- 旧 license replay：SLF 带单调递增 sequence，客户端保存 last_accepted_sequence，收到更小的即拒。
+- 时钟回拨：issued_at / expires_at 以服务端时间为准；每次重启都需要 refresh from server，运行期用 monotonic clock（time.Since）计时。
+- 离线 License 验证：license 绑定 kube-system namespace 的 UID。
+- DB 泄露：云端不存 raw RT，只存 HMAC(server_secret, raw_rt) verifier，server_secret 放 KMS。
+- 日志泄露：token 带前缀便于按前缀脱敏；日志/trace/metrics/crash dump 全脱敏，错误只回 error code + request_id。
+
+核心一句话：让盗版不再便宜、不再隐形、不再难以追责。

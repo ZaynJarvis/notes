@@ -1,4 +1,5 @@
 import { registerPost } from '../blog-components.jsx';
+import licenseActivationScheme from './license-activation-scheme/index.jsx';
 import huashengSeoGeoPlaybook from './huasheng-seo-geo-playbook/index.jsx';
 import howtoUseZouk from './howto-use-zouk/index.jsx';
 import aiCapabilityNotes from './ai-capability-notes/index.jsx';
@@ -13,6 +14,7 @@ import techInvestmentFramework from './tech-investment-framework/index.jsx';
 import fableTomorrowPlan from './fable-tomorrow-plan/index.jsx';
 
 [
+  licenseActivationScheme,
   fableTomorrowPlan,
   fableSuperiority,
   huashengSeoGeoPlaybook,
