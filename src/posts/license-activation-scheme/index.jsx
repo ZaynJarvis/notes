@@ -364,27 +364,253 @@ const BODY = `
   <div class="lsx-foot">License Scheme Design Reference · 2026-07-08 · 核心:让盗版不再便宜、不再隐形、不再难以追责。</div>
 `;
 
-const LicenseActivationScheme = () => (
-  <div className="b-article lsx">
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
-    <div dangerouslySetInnerHTML={{ __html: BODY }} />
+const BODY_EN = `
+  <p class="sec-note"><b>Threat model (two tiers)</b> —— name what we defend against first, then the conclusion.</p>
+  <table>
+    <thead><tr><th>Tier</th><th>Method</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr class="row-hi"><td class="tier">Tier 1<br>Copy, unmodified</td><td>Copy / clone the whole running system (incl. RT) —— over-deployment / whole-environment cloning / extract and reuse the RT</td><td class="yes">✅ Detectable (concurrent in-memory instance-id detection + frequency)</td></tr>
+      <tr class="row-lo"><td class="tier">Tier 2<br>Code change / forged trust</td><td>Modify the agent/service, patch out checks, pin the instance-id, forge agent↔business-service trust</td><td class="no">❌ Not defensible by software alone (legal / contract)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box good">
+    <h3>Conclusion · activation code + static RT + in-memory random-id detection + short-lived signed License</h3>
+    <p>A simple structure that handles the <b>copy-without-reversing-code (Tier-1) threat</b>. An <code>activation_code</code> activates once → you get a <b>static refresh token (no entitlement)</b>; each refresh returns a <b>short-lived signed License File (SLF, carrying the full entitlement)</b> and extends the RT <b>TTL</b> when needed, with no RT rotation. Copy detection relies on a <b>random instance-id generated in memory</b> (never persisted): it rides every refresh, and when the cloud sees one RT with multiple concurrent, persistent instance-ids it flags license reuse → <b>[alert → confirm → revoke]</b>.</p>
+    <div class="stack">activation code (one-time)<br>&nbsp;&nbsp;+ static Refresh Token (identity only / refresh extends TTL)<br>&nbsp;&nbsp;+ Short License File (full entitlement snapshot)<br>&nbsp;&nbsp;+ in-memory random instance-id (unreadable by clones, enables copy detection)<br>&nbsp;&nbsp;+ audit + cloud-side HMAC verifier (RT never leaks in the cloud)<br>———<br>emergency "rotation" = re-activation → new activation code</div>
   </div>
-);
+
+  <h2 class="sec" id="premise" data-toc="true">0<span class="big">Design premises</span></h2>
+  <div class="box risk">
+    <h3>Load-bearing premises</h3>
+    <ol>
+      <li>Assume the trust channel between the private-deployment verification service and the business services is not breached, and the License does not leak inside the private environment. Business services only accept entitlement pushed by the local license agent; they never verify a bearer license file themselves. Fanning a signed license/entitlement out to N clusters would require all N to point at one verification agent —— i.e. forging agent↔business-service trust —— which this premise excludes.</li>
+      <li><b>The license agent is a singleton within a cluster</b> (HA via leader). So "one cluster = one live agent = one instance-id", which makes the in-memory instance-id a clean copy-detection signal.</li>
+    </ol>
+    <p style="margin-top:10px;"><b>Breaks when:</b> a signed license can be reused (e.g. a business service starts verifying it itself) —— then you must evaluate binding the license to the cluster key (key-binding).</p>
+  </div>
+
+  <h2 class="sec" id="evo" data-toc="true">Ⅰ<span class="big">Evolution path (new → old)</span></h2>
+  <p class="sec-note">Each step: mechanism / what it solved / what it left behind. The scheme evolved bottom (old) to top (new); each step fixes one new problem the previous created; ★ is the current scheme.</p>
+  <div class="timeline">
+    <div class="stage current">
+      <div class="node">★</div>
+      <div class="card">
+        <h4>Static RT + in-memory instance-id reuse detection<span class="lbl">current</span></h4>
+        <p class="mech">activation code bootstraps → obtain a static RT (identity only) + first SLF (full entitlement); each refresh extends the RT TTL + issues a new SLF; the agent generates an in-memory random instance-id at startup and sends it on every refresh; the cloud sees one RT with multiple <b>persistent</b> instance-ids → detects reuse.</p>
+        <div class="kv"><span class="tag good">solved</span><span>Closes "RT leak / clone hard to notice": the in-memory instance-id catches clones (a clone can't read the in-memory id), cleaner than deployment_id; simplest structure, no rotation state machine / grace / bricking; tolerates restart & rolling-upgrade overlap.</span></div>
+        <div class="kv"><span class="tag warn">left</span><span>Requires a singleton agent (HA leader election); patching instance_id to break it is a Tier-2 attack.</span></div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="node">④</div>
+      <div class="card">
+        <h4>Activation Code for Refresh Token</h4>
+        <p class="mech">A one-time activation code is redeemed once → refresh token; afterwards the RT refreshes to fetch SLFs.</p>
+        <div class="kv"><span class="tag good">solved</span><span>Narrows leakage on the <b>out-of-cluster distribution path</b> (email/contract/ticket/installer); the RT is only ever minted inside the cluster.</span></div>
+        <div class="kv"><span class="tag warn">left</span><span>The RT is still a long-lived token; an in-cluster leak/clone is hard to notice —— covered by ★ in-memory instance-id detection.</span></div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="node">③</div>
+      <div class="card">
+        <h4>Key for short-lived License (SLF)</h4>
+        <p class="mech">The license file becomes a short-lived (day-scale) full-entitlement snapshot, refreshed periodically (+ on-demand triggers).</p>
+        <div class="kv"><span class="tag good">solved</span><span>Enables early revoke, up/down-scoping, dynamic entitlement, fail-close; each SLF is a full snapshot, so there is no entitlement state to manage (see Ⅴ Q8).</span></div>
+        <div class="kv"><span class="tag warn">left</span><span>The Key is a long-lived token, reusable if leaked —— narrowed by ④ activation code.</span></div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="node">②</div>
+      <div class="card">
+        <h4>Key for License File</h4>
+        <p class="mech">Ship a long-lived key at deploy time; the client exchanges it for a license file from the cloud.</p>
+        <div class="kv"><span class="tag good">solved</span><span>Convenient online renewal —— no manual yearly file swap.</span></div>
+        <div class="kv"><span class="tag warn">left</span><span>The Key is a long-lived token; within its validity you can't revoke/downscope —— solved by ③ short lease.</span></div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="node">①</div>
+      <div class="card">
+        <h4>Static License File</h4>
+        <p class="mech">The cloud issues a static signed file; the client verifies it locally with a built-in public key.</p>
+        <div class="kv"><span class="tag good">solved</span><span>Simplest; fully usable offline.</span></div>
+        <div class="kv"><span class="tag warn">left</span><span>Renewal means swapping the file by hand; no online revoke —— solved by ② key-for-file.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sec" id="insight" data-toc="true">Ⅱ<span class="big">Key insights & Q&A (short)</span></h2>
+  <p class="sec-note">This is the conclusions layer; the full reasoning behind each is in Ⅴ below.</p>
+  <div class="box good">
+    <h3>Core invariant</h3>
+    <p><b>One license = one RT = one live consumer.</b> "Whole-environment cloning" and "copying the RT" are two ways to create a "second consumer". Use the in-memory instance-id to detect that "second consumer".</p>
+  </div>
+  <div class="insights">
+    <div class="insight"><h5><span class="dot"></span>The in-memory instance-id is the load-bearing duplication signal</h5><p>The agent generates a random id in <b>memory</b> at startup —— never persisted, sent on every refresh. <b>A clone can't read it</b> → the clone generates a new id → one RT with multiple concurrent persistent ids = duplication. Cleaner than deployment_id (inherited by a clone, identical to a migration).</p></div>
+    <div class="insight"><h5><span class="dot"></span>authN / authZ split</h5><p><b>RT = pure identity</b> (long-lived, no entitlement), <b>SLF = full entitlement snapshot</b> (short-lived, signed). It's OAuth's refresh token + access token model. Duplication detection lands cleanly in the authN layer, decoupled from entitlement.</p></div>
+    <div class="insight"><h5><span class="dot"></span>Short SLF = stateless full entitlement</h5><p>Each SLF is a self-contained signed snapshot → change/revoke/downscope is trivial (issue the next number), the client is stateless about entitlement, one signature is tamper-proof, audit is free. Avoids the base+delta reconciliation of "long file + heartbeat".</p></div>
+    <div class="insight"><h5><span class="dot"></span>A static RT is revocable —— no "permanent leak"</h5><p>Refresh only extends the TTL and the value never changes; but churn / account expiry / confirmed theft can all be <b>revoked server-side</b>, fail-close within one TTL. Concurrent reuse is caught by the instance-id —— <b>no need to rotate/mutate the token</b> (that only adds a state machine and bricking risk with no new coverage).</p></div>
+    <div class="insight"><h5><span class="dot"></span>activation code = the outside-link seam</h5><p>Keep the durable credential off the outside links (email/contract/installer): a leaked outside link is either dead after the customer redeems it, or becomes a loud "activation conflict" if a thief redeems first. It also gives <b>pre-handoff (delivery chain) vs runtime (inside the customer)</b> attribution.</p></div>
+    <div class="insight"><h5><span class="dot"></span>detection-first, never stop on non-detection</h5><p>HA without an election, or a rolling upgrade, briefly produces multiple ids → use an overlap tolerance window + "alert → accumulate/confirm → revoke". Don't silently stop service for fragile small customers. <b>It never bricks —— it only tolerates de-duplication.</b></p></div>
+  </div>
+  <div class="qa" style="margin-top:16px;">
+    <div class="item"><p class="q">Why can the RT be static?</p><p class="a">Because duplication is detected by the <b>in-memory instance-id</b>, not by token changes exposing reuse. It drops the whole rotation state machine / grace / bricking.</p></div>
+    <div class="item"><p class="q">Does a leaked static RT stay valid forever?</p><p class="a">No. churn / account expiry / confirmed theft can all be revoked, fail-close within one TTL. Concurrent reuse is caught by the instance-id.</p></div>
+    <div class="item"><p class="q">Why RT + short SLF instead of a long License File + heartbeat?</p><p class="a">Each short SLF is a <b>full signed snapshot</b> → no entitlement state to manage, changes are trivial; the RT therefore degenerates to <b>pure identity</b> (authN/authZ split). A long file needs base+delta reconciliation to adjust dynamically.</p></div>
+    <div class="item"><p class="q">How do instance-id and fingerprint relate?</p><p class="a">Separate: fingerprint is a <b>forgeable soft signal</b>; instance-id is the <b>load-bearing duplication signal</b> (in memory, unreadable by clones).</p></div>
+    <div class="item"><p class="q">Do we still need the activation code?</p><p class="a">Yes. Mainly so a durable credential never leaks outside the cluster. It's orthogonal to the detection mechanism.</p></div>
+  </div>
+
+  <h2 class="sec" id="activation" data-toc="true">Ⅲ<span class="big">Activation / recovery flow</span></h2>
+  <p class="sec-note">Normal activation is a one-time bootstrap; recovery goes through re-activation. Core invariant: <b>a license has exactly one live activation code + one live RT chain at any moment</b>.</p>
+  <p class="sec-note" style="margin-top:20px;"><b>Normal activation (first time)</b></p>
+  <div class="flow">
+    <div class="fstep"><div class="num">1</div><div class="txt">After purchase the cloud issues an <b>activation code</b>: high-entropy, short-lived, bound to customer/license, manually revocable, non-enumerable, leaking no internal info.</div></div>
+    <div class="fstep"><div class="num">2</div><div class="txt">The customer redeems it via <b>CLI</b>. Under HA a <b>singleton/leader agent performs a single redeem</b>.</div></div>
+    <div class="fstep"><div class="num">3</div><div class="txt">The cloud validates (<b>single-use / not expired / not revoked</b>) → mints a <b>static RT + first short SLF</b>, binds the account, <b>records the redeem context</b> (time/IP/source) for attribution → the activation code is voided immediately.</div></div>
+    <div class="fstep"><div class="num">4</div><div class="txt">The agent stores the RT in a <b>shared Secret</b> (readable by HA replicas), generates an <b>in-memory instance-id</b>, and starts the refresh loop (extend RT TTL + new SLF).</div></div>
+  </div>
+  <p class="sec-note" style="margin-top:22px;"><b>Recovery / re-activation (two modes)</b></p>
+  <div class="flow">
+    <div class="fstep"><div class="num">A</div><div class="txt"><b>Recovery mode (benign):</b> RT lost (Secret deleted, etc.) → revoke the old code, issue a new one, <b>the client redeems the new code</b> to swap in a short cert, avoiding downtime.</div></div>
+    <div class="fstep"><div class="num">B</div><div class="txt"><b>Revocation mode (confirmed theft / emergency "rotation"):</b> issue a new code and <b>immediately revoke the old RT</b>; the old credential dies within one TTL.</div></div>
+    <div class="fstep"><div class="num">!</div><div class="txt">Both modes work the same way —— <b>revoke the old activation code first</b> and converge to "one live chain". Issuing a new code is the only "rotation" entry point; there is no silent server-side rotation.</div></div>
+  </div>
+  <div class="box warn" style="margin-top:16px;">
+    <h3>Leak signal at activation</h3>
+    <p>Re-redeeming an <b>already-consumed activation code</b> → returns a clear error + is <b>recorded as a potential outside-link leak</b> (with context). A thief who redeems first makes the legitimate customer's activation fail —— turning a silent outside-link leak into a <b>loud, attributable conflict</b>. The activation code's TTL should match the customer's real deployment lead time, with an easy re-issue path so normal customers aren't blocked by expiry.</p>
+  </div>
+
+  <h2 class="sec" id="detail" data-toc="true">Ⅳ<span class="big">Details</span></h2>
+  <p class="sec-note"><span class="badge-proto">protocol</span> = touches the interaction protocol (exchanged fields / endpoint semantics / state machine), <b>review carefully</b>; <span class="badge-impl">impl/ops</span> = does not affect the interaction flow.</p>
+  <div class="details-list">
+    <div class="drow redline"><h5>In-memory instance-id semantics <span class="badge-proto">protocol</span></h5><p>The agent generates a random id at startup, <b>in memory only —— never persisted, never written to the Secret</b>; carried on every refresh. The cloud judges duplication by "the number of distinct, concurrent, persistent ids per RT within a time window". Requires a <b>singleton agent</b>, with an <b>overlap tolerance window</b> for restarts / rolling upgrades. <b>(detection core)</b></p></div>
+    <div class="drow redline"><h5>re-activation / emergency rotation <span class="badge-proto">protocol</span></h5><p>See Ⅲ. Both modes (recovery / revocation) <b>revoke the old code first + converge to one live chain</b>. Invariant: <b>one license = one live activation code + one live RT chain</b>.</p></div>
+    <div class="drow"><h5>activation code semantics <span class="badge-proto">protocol</span></h5><p>Redeem endpoint: <b>single-use, dies after redeem</b>, bound to customer/license, rate-limited, non-enumerable. <b>Re-redeeming a consumed code → error + leak hint</b>. Records the redeem context for attribution.</p></div>
+    <div class="drow"><h5>RT (refresh token) renewal / revoke <span class="badge-proto">protocol</span></h5><p>Each refresh <b>extends the RT expiry</b> server-side (value unchanged) and returns a new SLF. revoke = the server refuses to renew (account expiry / churn / confirmed theft) → fail-close within one TTL.</p></div>
+    <div class="drow"><h5>SLF (short License File) payload <span class="badge-proto">protocol</span></h5><p>The signature covers everything: <code>license_id / customer_id / product_id / entitlement / lease_id / sequence / issued_at / not_before / expires_at</code>. The client verifies the signature + product/license match + time window + non-decreasing sequence, then uses and discards it, replacing the whole file. Ed25519 recommended.</p></div>
+    <div class="drow"><h5>Old-license replay <span class="badge-proto">protocol</span></h5><p>The SLF carries a monotonically increasing <code>sequence</code>; the client stores <code>last_accepted_sequence</code> and rejects anything smaller. A whole-machine snapshot rollback rolls the sequence back too → software alone can't fully prevent it; short validity + being online + audit shrink the window.</p></div>
+    <div class="drow"><h5>Clock rollback <span class="badge-proto">protocol</span></h5><p>Protocol: the SLF's <code>issued_at / expires_at</code> use <b>server time</b>. Every restart must refresh from the server; during runtime use <code>time.Since</code> (a monotonic clock).</p></div>
+    <div class="drow"><h5>Offline license verification <span class="badge-proto">protocol</span></h5><p>The license is bound to the <code>kube-system</code> namespace UID.</p></div>
+    <div class="drow"><h5>fingerprint / deployment_id <span class="badge-proto">protocol</span> <span class="badge-proto" style="background:var(--warn-bg);color:var(--warn);">P1</span></h5><p>Requests carry client_info like <code>deployment_id / client_version</code>. It's a <b>forgeable soft signal</b> (reduces false positives, spots migrations, feeds audit), <b>not load-bearing</b> —— the load-bearing duplication signal is the in-memory instance-id.</p></div>
+    <div class="drow"><h5>DB leak <span class="badge-impl">impl/ops</span></h5><p>The cloud <b>never stores the raw RT</b>, only an <code>HMAC(server_secret, raw_rt)</code> verifier; <code>server_secret</code> lives in KMS, in a different permission domain from the DB, versioned/rotatable.</p></div>
+    <div class="drow"><h5>Log leak <span class="badge-impl">impl/ops</span></h5><p>Tokens carry a prefix for prefix-based redaction; all logs / traces / metrics / crash dumps are scrubbed; errors return only <code>error code + request_id</code>.</p></div>
+  </div>
+
+  <h2 class="sec" id="full" data-toc="true">Ⅴ<span class="big">Full-context Q&A (detailed · collapsed)</span></h2>
+  <p class="sec-note">This section keeps the <b>full reasoning chain</b>, so future collaborators/agents understand "why this scheme, and how each fork was ruled out".</p>
+  <div class="full">
+    <details>
+      <summary><span class="tno">Q1</span>What is the threat model and goal?</summary>
+      <div class="body">
+        <p>The goal is not absolute anti-cracking, but making piracy <b>detectable, containable, attributable</b>. Under the design premises (§0), threats converge to two tiers: <b>Tier 1, copy without modification</b> (clone the running system) → detectable; <b>Tier 2, code change / forged internal trust</b> → not defensible by software, needs hardware attestation / legal contracts.</p>
+        <p>Frequency floor: N independent clusters must each refresh ≥1×/validity to avoid fail-close → combined ≥N×, and you can't hide that behind a coordinator.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tno">Q2</span>Why can the RT be static? (no mutate / no rotation)</summary>
+      <div class="body">
+        <p>Because duplication detection doesn't depend on token changes but on the <b>in-memory instance-id</b>: the agent generates a random id in memory at startup, never persisted, sent on every refresh. <b>A clone can't read the in-memory id</b> → the clone generates a new id → one RT with multiple concurrent persistent ids = duplication. Cleaner than deployment_id (inherited by clones, identical to a migration); bypassing it needs patching the agent to pin the id = Tier 2.</p>
+        <p>Since detection is already provided by the instance-id, mutating the token (rotation) only adds a state machine / grace / bricking-on-lost-response, <b>with no new coverage</b> —— so the RT is static and refresh only extends the TTL. In essence the instance-id is a "lightweight unsigned PoP" that only detects, doesn't authenticate —— cleartext over TLS is enough.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tno">Q3</span>Are anti-duplication and anti-extraction the same thing?</summary>
+      <div class="body">
+        <p><b>Core invariant: one license = one live RT chain = one live consumer.</b> Cloning and extraction both just "create a second consumer"; <b>coverage is equivalent</b> (same "multiple instance-id" signal) → achieve anti-dup and anti-extraction follows.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tno">Q4</span>Customer profile: both kinds exist —— should we bother protecting?</summary>
+      <div class="body">
+        <p>Large customers are bound by brand + contract + audit and basically don't touch it. <b>The threat concentrates in small customers</b>: over-deployment / whole-environment cloning = Tier 1, exactly this scheme's sweet spot. Hence <b>detection-first, revoke only after confirmation</b> —— small customers run rough ops (no HA / manual migration / snapshot restore), so don't silently stop service and hurt them.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tno">Q5</span>With the agent holding the RT, is the threat "extraction" or "cloning"?</summary>
+      <div class="body">
+        <p>The agent hosts refresh; most customers never touch the RT. The dominant piracy mode <b>isn't extracting the RT, it's whole-environment cloning</b> —— the RT is copied along with the Secret. <b>And the in-memory instance-id catches exactly that</b>: the clone can't read the in-memory id, the cloned agent generates a new id → one RT with two concurrent ids → duplication. Actually patching the agent to pin the id is Tier 2.</p>
+        <p>Two corrections: legit customers' friction is lower than feared (the agent hosts it robustly); the RT's accidental-leak surface is smaller than assumed (only inside the cluster).</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tno">Q6</span>Do we still need the activation code? Is its value attributing the leak source?</summary>
+      <div class="body">
+        <p><b>The main reason isn't attribution —— it's keeping the durable credential off the outside links.</b> Drop it and you'd bake the RT into the shipped package; once the package leaks on an outside link and is <b>used alone</b> (a thief deploys first / the legit party isn't live yet), <b>the instance-id can't help</b> (it only catches concurrency). The activation code makes the outside link carry only a one-time code: dead once the customer redeems it; if a thief redeems first, the customer's activation fails → instant exposure.</p>
+        <p><b>Attribution is a free second benefit:</b> activation is a discrete node that splits a leak into pre-handoff (delivery chain) vs runtime (inside the customer). But discount it twice: an activation leak could be the customer's procurement forwarding it; runtime duplication could be an external attacker who breached the customer; and it only holds if you recorded the redeem context → a strong prior, not proof.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tno">Q7</span>Is a static RT being "valid forever" a problem?</summary>
+      <div class="body">
+        <p><b>No —— "valid forever" overstates it.</b> Static = the value doesn't change, but it's <b>revocable</b>: unsubscribe / account expiry / confirmed theft, the server refuses renewal, fail-close within one TTL. For duplication (concurrent reuse), the real threat, static RT + revoke + instance-id already covers it fully; the residual you worried about is a non-duplication corner (a thief using it alone, the account still paying, the legit party never coming online) —— neither reuse nor really plausible. To passively expire an old credential → go through re-activation.</p>
+      </div>
+    </details>
+    <details open>
+      <summary><span class="tno">Q8</span>Why RT + short SLF instead of a long License File + heartbeat?</summary>
+      <div class="body">
+        <p><b>The core benefit is stateless full-entitlement delivery.</b> Each SLF is a self-contained, signed, time-bounded <b>full snapshot</b>. Hence: entitlement change/revoke/downscope is trivial (issue the next number, no delta protocol); the client is <b>stateless</b> about entitlement (holds only the current SLF + <code>last_accepted_sequence</code>, replaced wholesale); <b>one signature is tamper-proof</b> (no signing and ordering a stream of deltas); audit is free (each issuance is one record with the snapshot + sequence).</p>
+        <p><b>Versus long file + heartbeat:</b> to support dynamic entitlement the heartbeat must carry updates → maintain a base + a stream of mutable deltas, reconcile both sides, sign and order each —— exactly the state SLF avoids; extending only the validity can't do dynamic adjustment.</p>
+        <p><b>So the RT degenerates to pure identity</b> (no entitlement) = <b>authN / authZ split</b> = OAuth's refresh token (identity) + access token (signed claims). Three notes: ① state doesn't vanish, it moves to the <b>server</b> (source of truth), leaving the client minimal; ② "short" gives timely revoke/change, "full" gives statelessness —— a pair; ③ the cost = <b>SLF TTL = the lower bound on revoke latency</b> (an issued SLF can't be recalled, you just stop re-issuing —— symmetric with the heartbeat model). The layering dividend: duplication detection (RT + instance-id) lands cleanly in the authN layer, decoupled from entitlement.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tno">Q9</span>The activation / recovery flow and its edges?</summary>
+      <div class="body">
+        <p>Normal activation, see Ⅲ: one-time code → singleton/leader agent redeem → cloud validate (single-use / not expired / not revoked) → mint static RT + first SLF + record redeem context → void the code → agent stores the RT in the shared Secret, generates the in-memory instance-id, starts the refresh loop.</p>
+        <p><b>Redeem conflict = leak signal:</b> re-redeeming a consumed code → clear error + recorded as a potential outside-link leak (a thief redeeming first makes the legit customer's activation fail → loud exposure).</p>
+        <p><b>Recovery / re-activation, two modes:</b> recovery (RT lost; the old chain survives until the new code is redeemed, avoiding downtime) vs revocation (confirmed theft; kill the old chain immediately). Both revoke the old code first and converge to one live chain. <b>Edges:</b> RT lost / code expired → re-activation (accepts manual intervention, rare); the code TTL matches the deployment lead time + keeps a re-issue path.</p>
+      </div>
+    </details>
+  </div>
+
+  <h2 class="sec" id="appx" data-toc="true">Ⅵ<span class="big">Appendix</span></h2>
+  <div class="appx">
+    <div class="amod">
+      <h5>A · What it defends / doesn't (scope boundary)</h5>
+      <p class="why">Why: a clear boundary manages expectations and avoids over-investment, and it's the basis for the accountability clauses in the contract / license terms.</p>
+      <p><b>Defends or mitigates (Tier 1):</b> long-term copying of static files, long-lived key leaks, RT re-distribution, whole-environment cloning / concurrent reuse, old-license replay, simple clock rollback, dynamic entitlement adjustment, early revoke, over-authorized multi-cluster, DB leak grabbing a token.</p>
+      <p><b>Can't fully defend (Tier 2):</b> code change / patching out local checks, pinning the instance-id, forging internal agent↔business-service trust, continuously syncing the latest RT to an attacker, whole-machine snapshot rollback without trusted storage, a high-privilege cloud insider, an authorized customer actively reselling the latest Secret.</p>
+    </div>
+    <div class="amod">
+      <h5>B · Glossary</h5>
+      <p class="why">Why: fast alignment for future agents / new teammates; some terms have specific meanings.</p>
+      <p><b>activation code</b> one-time bootstrap credential · <b>refresh token (RT)</b> in-cluster static credential, identity only, refresh just extends TTL · <b>SLF (short License File)</b> a short signed lease carrying the full entitlement snapshot, consumed by services · <b>in-memory instance-id</b> the instance identity the agent generates at startup, never persisted, sent on every refresh —— the load-bearing duplication signal · <b>duplication detection</b> one RT presenting multiple concurrent persistent instance-ids · <b>re-activation</b> re-requesting an activation code (revoking the old chain first), doubling as emergency "rotation", in recovery / revocation modes · <b>Tier 1 / Tier 2</b> copy-class (detectable) / code-change-class (not defended).</p>
+    </div>
+  </div>
+
+  <div class="lsx-foot">License Scheme Design Reference · 2026-07-08 · The point: make piracy no longer cheap, no longer invisible, no longer hard to attribute.</div>
+`;
+
+const LicenseActivationScheme = ({ t }) => {
+  const html = t({ zh: BODY, en: BODY_EN });
+  return (
+    <div className="b-article lsx">
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
+  );
+};
 
 export default {
   id: 'license-activation-scheme',
   Component: LicenseActivationScheme,
   meta: {
-    title: { zh: '私有化 License 激活方案' },
+    title: {
+      zh: '私有化 License 激活方案',
+      en: 'License Activation for Private Deployments',
+    },
     description: {
       zh: '私有化交付的 License 激活方案：激活码 + 静态 Refresh Token + 内存 random instance-id 检测 + 短效签名 License，把盗版从低成本、无感、不可追责变成可检测、可止损、可追责。含威胁模型、方案演进、激活/恢复流程与完整推理 Q&A。',
+      en: 'A license-activation scheme for private deployments: activation code + static Refresh Token + in-memory random instance-id detection + short-lived signed License, turning piracy from cheap, invisible and unattributable into detectable, containable and attributable. Threat model, evolution path, activation/recovery flow, and the full reasoning Q&A.',
     },
     cover,
     publishedAt: '2026-07-08',
-    readingTime: { zh: 13 },
-    category: { zh: '系统设计' },
+    readingTime: { zh: 13, en: 12 },
+    category: { zh: '系统设计', en: 'System Design' },
     tags: ['license', 'security', 'anti-piracy', 'private-deployment', 'authn', 'architecture'],
-    languages: ['zh'],
+    languages: ['zh', 'en'],
     llmPath: '/post/license-activation-scheme/llm.txt',
     authors: [
       {
