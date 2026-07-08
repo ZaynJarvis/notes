@@ -125,6 +125,24 @@ const CSS = `
 .lsx .amod p+p{ margin-top:7px; }
 .lsx .lsx-foot{ margin-top:40px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; font-family:var(--mono); }
 @media(max-width:680px){ .lsx .insights{ grid-template-columns:1fr; } }
+
+/* ---- follow the site's dark theme (washi) ---- */
+[data-theme="washi"] .lsx{
+  --bg:#1e1d1a; --panel:#26241f; --ink:#e8e4da; --muted:#a39c8f;
+  --line:#38352f; --accent:#8fb0d6; --accent-soft:#28323f;
+  --good:#74c295; --good-bg:#182a20; --warn:#d8a24a; --warn-bg:#2c2413;
+  --risk:#e07a6c; --risk-bg:#2f1d1a;
+}
+[data-theme="washi"] .lsx .stack{ background:#161512; color:#d7d2c6; }
+[data-theme="washi"] .lsx .node{ background:#4a473f; }
+[data-theme="washi"] .lsx .stage.current .card{ border-color:#2f5f48; }
+[data-theme="washi"] .lsx th{ background:#2b2924; }
+[data-theme="washi"] .lsx .row-hi{ background:#1b2620; }
+[data-theme="washi"] .lsx .row-lo{ background:#291d1b; }
+[data-theme="washi"] .lsx .drow code{ background:#161512; }
+[data-theme="washi"] .lsx .badge-impl{ background:#2f2d27; }
+[data-theme="washi"] .lsx .qa .q::before{ background:#3a5a80; color:#eaf2fb; }
+[data-theme="washi"] .lsx .box,[data-theme="washi"] .lsx .card,[data-theme="washi"] .lsx table,[data-theme="washi"] .lsx .insight,[data-theme="washi"] .lsx .drow,[data-theme="washi"] .lsx .flow,[data-theme="washi"] .lsx .qa,[data-theme="washi"] .lsx .full details,[data-theme="washi"] .lsx .amod{ box-shadow:0 1px 3px rgba(0,0,0,.28); }
 `;
 
 const BODY = `
