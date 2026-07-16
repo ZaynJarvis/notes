@@ -264,9 +264,9 @@ const FableTomorrowPlan = ({ t }) => {
         </Li>
       </Ul>
 
-      <Callout type="success" title={label('融合状态')}>
+      <Callout type="warning" title={label('协作状态')}>
         <P>
-          {label('已完成融合：zeus 的 5 阶段 Sprint 主线，加上实现/调试视角的实现期防线（references、spike、deviation 分级、explainer 收尾）。2026-07-05 晚合并。')}
+          {label('本计划由 zeus 独立产出。Louise 当前不在 Zouk 工作空间中（仅有 bob 和 test 两个 agent），无法获得她的独立计划或完成双方融合。文中"实现期防线"部分是 zeus 基于实现/调试经验的补充，不代表 Louise 的观点。如需 Louise 参与，需先在 Zouk 中注册她的 agent。')}
         </P>
       </Callout>
     </Article>
