@@ -20,25 +20,25 @@ const OrchestratingAgentsWithHerdr = ({ t }) => {
   return (
     <Article>
       <Lead>
-        {label('用 Claude 做 orchestrator、herdr 做调度基座、codex 做执行体，搭了一个本地多引擎流式聊天应用。真正的收获不是那个应用，而是这套「Claude 编排、herdr 分发、codex 执行」的构建方式，以及核心后端可以有多小。')}
+        {label('我搭了个本地跑的多引擎流式聊天应用，但代码基本不是我写的。我只负责编排：把活拆开，用 herdr 分发给几个 codex 去执行，自己收结果。应用本身不算什么，值得记下来的是这套分工，还有核心后端小得出乎我意料。')}
       </Lead>
 
       <Callout type="info" title={label('核心判断')}>
         <P>
-          {label('一个「Claude Agent SDK 风格」的多引擎聊天应用，核心后端只有约 600 行，最小骨架（app + db + sessions + routes）约 370 行。复杂度不在业务逻辑，而在两个边界：把 codex / droid / claude-sdk 三种 CLI 的流归一成同一套 event schema，以及把并行 agent 的产物安全地合到一起。herdr 恰好把后一件事的调度、等待、通知都变成了一行 CLI。')}
+          {label('核心后端就 600 行左右，砍到最小骨架（app + db + sessions + routes）才 370 行。业务逻辑没什么复杂度，难的是两个边界。一是把 codex、droid、claude-sdk 三种 CLI 的输出流揉成同一套 event schema；二是让几个并行的 agent 各写各的、最后拼到一起还不打架。而第二件事的分发、等待、通知，herdr 基本一行命令就搞定。')}
         </P>
       </Callout>
 
       <H2>{label('背景：这次到底建了什么')}</H2>
       <P>
-        {label('目标是一个本地跑的聊天应用：assistant 正文流进主对话区，thinking / tool_call / tool_result 这类「内部步骤」折叠进右侧 sidebar。三种引擎按 session 切换 —— OpenAI Codex 订阅（gpt-5.6-sol，xhigh）、factory.ai Droid（做 VLM），以及 Claude Agent SDK。会话可创建、恢复、切换，凭据全部从本机读取。')}
+        {label('想要的东西很具体：一个本地聊天应用，assistant 的正文流进主对话区，thinking、tool_call、tool_result 这些「内部步骤」折叠到右边 sidebar。引擎有三种，按 session 各选各的：OpenAI Codex 订阅（gpt-5.6-sol，xhigh）、factory.ai 的 Droid 拿来做 VLM，再加 Claude Agent SDK。会话能建、能续、能切，凭据一律从本机读，不往外传。')}
       </P>
       <P>
-        {label('但构建方式才是重点：我（Claude）不写业务代码，只做 orchestrator —— 先写一份 SPEC.md 契约，再用 herdr 把任务分发给多个 codex agent 并行执行，每个 agent 一个 pane，每轮一个 tab，收集结果、验证、必要时再 fanout。下面按「核心有多简单」和「herdr / claudeSDK 的学习」两条线记录。')}
+        {label('不过重点不在应用，在怎么建的。业务代码我一行没写，只当 orchestrator：先落一份 SPEC.md 当契约，再让 herdr 把任务派给几个 codex agent 同时干。一个 agent 占一个 pane，一轮 fanout 开一个 tab，跑完我收结果、做验证，不够再来一轮。下面分两条线写，一条是核心到底有多简单，另一条是 herdr 和 claudeSDK 上踩到的东西。')}
       </P>
 
       <H2>{label('一、核心后端有多简单')}</H2>
-      <P>{label('按代码行（去掉空行与注释）分组：')}</P>
+      <P>{label('按代码行数分一下组，空行和注释不算：')}</P>
       <Table
         headers={[label('分组'), label('代码行'), label('说明')]}
         rows={[
@@ -49,7 +49,7 @@ const OrchestratingAgentsWithHerdr = ({ t }) => {
         ]}
       />
       <P>
-        {label('整个流式契约其实就一个 endpoint。它做三件事：落库 user 消息、把引擎事件逐帧转发成 SSE、done 时落库 assistant 消息（正文 + sidebar 事件 + 引擎自己的 session id 以便恢复）。')}
+        {label('整套流式契约其实就压在一个 endpoint 里。先把 user 消息落库，然后引擎每吐一个事件就转成一帧 SSE 发出去，收到 done 再把 assistant 消息落库，正文、sidebar 事件、还有引擎自己那个 session id 一起存下来，方便之后恢复。')}
       </P>
       <Pre lang="python" filename="server/routes.py（核心，伪代码）">{`@router.post("/api/sessions/{sid}/chat")
 async def chat(sid, text: Form, images: list[UploadFile] = []):
@@ -71,7 +71,7 @@ async def chat(sid, text: Form, images: list[UploadFile] = []):
 
     return StreamingResponse(sse(), media_type="text/event-stream")`}</Pre>
       <P>
-        {label('主对话 / sidebar 的分流，在前端也只是一次读流 + 一个 if。EventSource 不支持 POST/multipart，所以用 fetch + getReader 自己切 SSE 帧：')}
+        {label('前端那边，主对话和 sidebar 的分流也就是读一遍流、加一个 if。EventSource 不支持 POST 和 multipart，所以改用 fetch 加 getReader，自己切 SSE 帧：')}
       </P>
       <Pre lang="javascript" filename="web/app.js（核心，伪代码）">{`const res = await fetch(\`/api/sessions/\${sid}/chat\`, { method: "POST", body: form });
 const reader = res.body.getReader();
@@ -89,29 +89,29 @@ for (;;) {
   }
 }`}</Pre>
       <P>
-        {label('归一的关键是一套跨引擎完全一致的 event schema：text / thinking / tool_call / tool_result / error / done，seq 单调递增。有了它，前端不需要知道背后是 codex 还是 claude，分流逻辑对三种引擎都一样。')}
+        {label('能这么简单，全靠一套三种引擎通用的 event schema：text、thinking、tool_call、tool_result、error、done，seq 递增。有了它，前端根本不用管背后跑的是 codex 还是 claude，分流逻辑三种引擎共用一套。而这套 schema 不是我拍脑袋定的，是直接借了 Claude Agent SDK 的 message 形状，第三节细说。')}
       </P>
 
       <H2>{label('二、herdr 作为 orchestration infra 的学习')}</H2>
       <P>
-        {label('herdr 是给 AI coding agent 用的终端工作区管理器。这次拿它当调度基座，把 Claude 拆出来的子任务 fanout 给多个 codex，效果出乎意料地顺。四个原语撑起了整套编排：')}
+        {label('herdr 本来是给 AI coding agent 用的终端工作区管理器。我这次把它当调度层用，把拆出来的子任务 fanout 给一堆 codex，意外地顺手。真正用到的就四个原语。')}
       </P>
       <Ul>
         <Li>
           <Strong>{label('pane = 可观察、可持久的 worker 槽。')}</Strong>
-          {label('每个 agent 跑在一个真实 pane 里，可以实时看它的内部步骤，跑完 pane 还留着可回溯 —— 比「子进程只能事后看日志」的可观察性好太多。')}
+          {label('每个 agent 跑在真实的 pane 里，中间步骤能实时看，跑完 pane 也不销毁，随时回去翻。比起「子进程跑完只剩一坨日志」，可观察性完全是两回事。')}
         </Li>
         <Li>
           <Strong>{label('herdr wait output --match <哨兵> = 干净的完成栅栏。')}</Strong>
-          {label('给每个 agent 的命令尾部 echo 一个哨兵，后台 block 在这个哨兵上，命中即返回，用来唤醒 orchestrator。')}
+          {label('在每个 agent 的命令末尾 echo 一个哨兵字符串，后台就 block 在这个哨兵上，一命中就返回，正好拿来唤醒 orchestrator。')}
         </Li>
         <Li>
           <Strong>{label('herdr notification show = 补上 human-in-the-loop 的缺口。')}</Strong>
-          {label('每个 agent、每一轮完成都弹一个桌面通知，正好是「做完叫我」。')}
+          {label('agent 完成、整轮完成，各弹一个桌面通知，就是那句「做完叫我」。')}
         </Li>
         <Li>
           <Strong>{label('tab = 天然的轮次隔离。')}</Strong>
-          {label('一轮 fanout 一个 tab，pane 保留成审计轨迹。')}
+          {label('一轮 fanout 开一个 tab，里面的 pane 留着当审计轨迹。')}
         </Li>
       </Ul>
       <Pre lang="bash" filename="每轮 fanout 的骨架">{`# 1 tab / 轮，1 pane / 并行 agent
@@ -124,43 +124,73 @@ herdr wait output $pane --match ___DONE_A___ --timeout 2400000
 herdr notification show "round1: A done" --sound done`}</Pre>
       <Callout type="note" title={label('两个踩到的坑')}>
         <P>
-          {label('1) codex exec 跑在 pane 里不是 TUI，herdr 的 agent-status 检测不到它的忙/闲，所以完成信号要用输出哨兵，而不是 wait agent-status。2) codex 的子进程要把 stdin 设成 DEVNULL，否则它会挂在等待输入上。')}
+          {label('1) codex exec 在 pane 里跑的不是 TUI，herdr 的 agent-status 认不出它是忙是闲，所以完成信号得靠输出哨兵，别指望 wait agent-status。2) codex 子进程的 stdin 要设成 DEVNULL，不然它会卡在等输入。')}
         </P>
       </Callout>
       <P>
-        <Strong>{label('herdr 给了 dispatch + wait + notify，但没给冲突预防。')}</Strong>
-        {label('并行 agent 之所以没互相踩，是因为先写了 SPEC.md：事件 schema、HTTP 契约、以及每个 agent 严格互斥的文件归属。这份纪律在 orchestrator 身上，不在工具里。要把 herdr 正式当构建基座，值得再包一层薄封装：输入 {契约, agent 任务[], 哨兵}，返回 pane id + 合并的 waiter。')}
+        <Strong>{label('herdr 给的是 dispatch、wait、notify，冲突预防它不管。')}</Strong>
+        {label('几个 agent 没互相踩，靠的是那份先写好的 SPEC.md：事件 schema、HTTP 契约，还有每个 agent 各管哪几个文件、界限划死。这活儿得 orchestrator 自己扛，工具帮不上。真要把 herdr 当构建基座长期用，可以在外面套一层薄封装，喂给它契约、一串 agent 任务和哨兵，回一组 pane id 和一个合并好的 waiter。')}
       </P>
 
-      <H2>{label('三、多引擎 / Claude SDK 的学习')}</H2>
+      <H2>{label('三、Claude Agent SDK 在这套东西里到底怎么用')}</H2>
       <P>
-        {label('把三种异构 CLI 归一成同一套事件流，真正的工作量在「照着真实输出写解析」，而不是照文档猜字段。最典型的一个 bug：codex 在成功的 turn 里，也会把「skill 描述被裁剪」这类运维提示，当成 item 级的 error 事件发出来。')}
+        {label('Claude 在这里其实出现了两次，容易混。第一次是当 orchestrator：整个 build 就是 Claude Code 在拆任务、写契约、调 herdr、收结果，而 Claude Code 本身就跑在 Claude Agent SDK 的 agent loop 上。第二次是当应用里的一个引擎，也就是 server/engines/claude_engine.py。这一节讲后者，因为正是它顺手定义了前面那套 event schema。')}
       </P>
-      <Pre lang="python" filename="server/engines/codex_engine.py（要点，伪代码）">{`async for line in proc.stdout:                 # codex exec --json 的 JSONL
+      <P>
+        {label('SDK 的用法很直接：ClaudeAgentOptions 配好 model、cwd、权限，再 async for 迭代 query() 吐出来的 message。真正的价值在于它吐的不是一坨纯文本，而是已经分好类的 message 和 block。AssistantMessage 里有 TextBlock、ThinkingBlock、ToolUseBlock、ToolResultBlock，最后一个 ResultMessage 收尾、带 usage。这套现成的分类，正好就是我要的主对话和 sidebar 分流。')}
+      </P>
+      <Pre lang="python" filename="server/engines/claude_engine.py（要点，伪代码）">{`# SDK 的 message 流，逐 block 映射成统一事件
+options = ClaudeAgentOptions(model=model, cwd=workdir,
+                             permission_mode="bypassPermissions",
+                             resume=session_id)          # 有 id 就续，没有就新开
+async for message in query(prompt=prompt, options=options):
+    if is(message, "ResultMessage"):                     # turn 收尾
+        yield done_ev(seq, session_id, usage(message)); return
+    for block in getattr(message, "content", []):
+        if   is(block, "TextBlock") and is(message, "AssistantMessage"):
+             yield text_ev(seq, block.text)              # -> 主对话
+        elif is(block, "ThinkingBlock"):
+             yield thinking_ev(seq, block.thinking)      # -> sidebar
+        elif is(block, "ToolUseBlock"):
+             yield tool_call_ev(seq, block.id, block.name, block.input)     # -> sidebar
+        elif is(block, "ToolResultBlock"):
+             yield tool_result_ev(seq, block.tool_use_id,
+                                  not block.is_error, block.content)         # -> sidebar`}</Pre>
+      <P>
+        {label('这里 is() 是自己写的小工具，先按 isinstance 认 SDK 的类，认不出再退回按类名字符串匹配。这样 SDK 小版本变动、类被挪了位置，引擎也不会直接崩。另外，settings 里 claude 那条「可用」，判据就是这个 SDK import 得进来。')}
+      </P>
+      <P>
+        {label('反过来看另外两条引擎，就清楚它们在干嘛了：codex 和 droid 是把各自 CLI 的 JSONL，翻译回 SDK 这个形状。谁缺 thinking 就补上，谁的 error 语义不对就纠回来。claude_engine 是参照物，另外两个是照着它翻译。所以那套 schema 与其说是我设计的，不如说是从 SDK 的 message 形状抄下来的。')}
+      </P>
+      <P>
+        {label('翻译时最容易翻错的一个字段，是 codex 的 error。它哪怕这一 turn 成功了，也会把「skill 描述被裁剪」这种运维提示，当成 item 级 error 吐出来。照 SDK 的语义，这应该是个提示、进 sidebar，而不是红色 error：')}
+      </P>
+      <Pre lang="python" filename="server/engines/codex_engine.py（翻译回 SDK 形状，伪代码）">{`async for line in proc.stdout:                 # codex exec --json 的 JSONL
     item = json.loads(line).get("item") or {}
     t = item.get("type")
     if   t == "agent_message": yield text_ev(item["text"])       # -> 主对话
     elif t == "reasoning":     yield thinking_ev(item["text"])   # -> sidebar
     elif t in TOOLS:           yield tool_call_ev(...) / tool_result_ev(...)
     elif t == "error":         yield thinking_ev("[codex] " + item["message"])
-                               # ↑ 这是运维提示，不是 turn 失败：折进 sidebar，
+                               # ↑ 运维提示，不是 turn 失败：折进 sidebar，
                                #   别当红色错误。真正失败走 turn.failed / 非零退出。`}</Pre>
       <P>
-        {label('教训很朴素：解析异构 agent 输出时，先真跑一次看真实 JSON，把「informational notice」和「real failure」分开。前者进 sidebar，后者才是 error。否则每一轮正常对话都会闪一个假红错。')}
+        {label('所以解析这类 agent 输出，先真跑一遍看看 JSON 长啥样，对着 SDK 的 block 语义把「提示」和「真失败」分清楚。提示归 sidebar，只有真失败才算 error。不然每轮正常对话都会闪一下假的红色报错，挺膈应人。')}
       </P>
 
       <H2>{label('一页版复用清单')}</H2>
       <Ul>
-        <Li>{label('先写契约再 fanout：event schema + HTTP API + 每个 agent 互斥的文件归属，能让并行 agent 不打架。')}</Li>
-        <Li>{label('Claude 编排、codex 执行、herdr 调度：pane 可观察、wait output 当栅栏、notification 叫人、tab 分轮次。')}</Li>
-        <Li>{label('归一事件流：text 进主区，thinking / tool_* 进折叠 sidebar，一套 schema 打平所有引擎。')}</Li>
-        <Li>{label('解析异构 CLI：照真实输出写，区分 notice 与 failure；子进程 stdin 记得 DEVNULL。')}</Li>
-        <Li>{label('自己验证，别信 agent 自述：真发一个 live turn，落库回读，确认流帧与持久化都对。')}</Li>
+        <Li>{label('先写契约再 fanout。事件 schema、HTTP API、每个 agent 管哪些文件，都定死，并行起来才不打架。')}</Li>
+        <Li>{label('分工是 Claude 编排、codex 执行、herdr 调度。pane 用来看，wait output 当栅栏，notification 叫人，tab 分轮次。')}</Li>
+        <Li>{label('event schema 别自己发明。Claude Agent SDK 的 message/block 分类（Text/Thinking/ToolUse/ToolResult + ResultMessage）就是现成的契约，其它引擎照它翻译。')}</Li>
+        <Li>{label('事件流归一：text 进主区，thinking 和 tool_* 进折叠 sidebar，一套 schema 把三种引擎抹平。')}</Li>
+        <Li>{label('解析异构 CLI 照真实输出来写，分清提示和失败；子进程 stdin 记得设 DEVNULL。')}</Li>
+        <Li>{label('别信 agent 的自我汇报。自己真发一个 live turn，落库再读回来，确认流帧和持久化都对得上。')}</Li>
       </Ul>
 
       <Callout type="warning" title={label('诚实的边界')}>
         <P>
-          {label('这次 live 端到端只彻底验证了 Codex 一条路径（真实 gpt-5.6-sol xhigh，流帧 + 持久化都对）。Factory/VLM 与 Claude SDK 两条引擎已接线、语法干净、凭据探测为 true，但没跑过真实的图像 / Claude turn。要判「全部可用」，还差这两条的 live 验证。')}
+          {label('有一点得说清楚：这次真正端到端验证过的只有 Codex 这条路（真跑了 gpt-5.6-sol xhigh，流帧和持久化都对）。Factory/VLM 和 Claude SDK 两条已经接好线、语法没问题、凭据也探测到了，但没真发过图像或 Claude 的 turn。所以还不能说「三条都能用」，那两条还欠一次实跑。')}
         </P>
       </Callout>
     </Article>
@@ -173,7 +203,7 @@ export default {
   meta: {
     title: { zh: '用 herdr 编排 codex：一个 Claude SDK 应用的构建复盘' },
     description: {
-      zh: 'Claude 做 orchestrator、herdr 做调度基座、codex 做执行体，搭一个本地多引擎流式聊天应用。核心后端约 600 行，附核心伪代码，以及 herdr / claudeSDK 的踩坑与复用清单。',
+      zh: '代码基本不是我写的：我只做编排，herdr 分发，codex 执行，搭出一个本地多引擎流式聊天应用。核心后端约 600 行；重点讲 Claude Agent SDK 在这里的两种用法，以及它的 message/block 分类怎么直接变成整套 event schema。',
     },
     publishedAt: '2026-07-19',
     readingTime: { zh: 12 },
