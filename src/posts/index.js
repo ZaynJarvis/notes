@@ -12,8 +12,10 @@ import makeAGoal from './make-a-goal/index.jsx';
 import runtimeStateModels from './runtime-state-models/index.jsx';
 import techInvestmentFramework from './tech-investment-framework/index.jsx';
 import fableTomorrowPlan from './fable-tomorrow-plan/index.jsx';
+import orchestratingAgentsWithHerdr from './orchestrating-agents-with-herdr/index.jsx';
 
 [
+  orchestratingAgentsWithHerdr,
   licenseActivationScheme,
   fableTomorrowPlan,
   fableSuperiority,
